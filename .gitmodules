@@ -8,3 +8,6 @@
 [submodule "vendor/stb"]
 	path = vendor/stb
 	url = https://github.com/nothings/stb.git
+[submodule "vendor/gl3w"]
+	path = vendor/gl3w
+	url = https://github.com/skaslev/gl3w.git
