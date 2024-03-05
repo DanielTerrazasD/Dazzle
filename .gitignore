@@ -1,0 +1,8 @@
+
+
+
+
+# Ignoring common names for output build directories
+out/
+output/
+build/
