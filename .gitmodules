@@ -11,3 +11,6 @@
 [submodule "vendor/gl3w"]
 	path = vendor/gl3w
 	url = https://github.com/skaslev/gl3w.git
+[submodule "vendor/glfw"]
+	path = vendor/glfw
+	url = https://github.com/glfw/glfw.git
