@@ -10,6 +10,7 @@ find_package(OpenGL REQUIRED)
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
     source/main.cpp
+    source/Utils.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp
@@ -39,4 +40,5 @@ target_include_directories(example_glfw_opengl3
         ${CMAKE_SOURCE_DIR}/vendor/imgui
         ${CMAKE_SOURCE_DIR}/vendor/imgui/backends
         ${CMAKE_SOURCE_DIR}/vendor/gl3w/include
+        ${CMAKE_SOURCE_DIR}/vendor/glm
 )

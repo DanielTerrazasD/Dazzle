@@ -33,6 +33,133 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
+// ------------------------------------ Multiple Tumbling Cubes ------------------------------------
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "Utils.h"
+
+#define NUM_VAOS 1
+#define NUM_VBOS 1
+
+float camera_x;
+float camera_y;
+float camera_z;
+float cube_location_x;
+float cube_location_y;
+float cube_location_z;
+
+GLuint rendering_program;
+GLuint vao[NUM_VAOS];
+GLuint vbo[NUM_VBOS];
+GLuint model_view_location;
+GLuint perspective_location;
+
+int width;
+int height;
+float aspect;
+int display_w, display_h;
+float speed = 0.5f;
+
+glm::mat4 perspective_mtx;
+glm::mat4 transform_mtx;
+glm::mat4 rotation_mtx;
+glm::mat4 model_mtx;
+glm::mat4 view_mtx;
+glm::mat4 model_view_mtx;
+
+void SetupVertices()
+{
+    GLfloat vertex_positions[] =
+    {
+        -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
+        1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
+        1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f
+    };
+
+    glGenVertexArrays(1, vao); // Create Vertex Array Object
+    glBindVertexArray(vao[0]); // Make the specified VAO "active"
+    
+    glGenBuffers(NUM_VBOS, vbo); // Create Vertex Buffer Objects
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]); // Make the 0th buffer active
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_positions), vertex_positions, GL_STATIC_DRAW); // Initialize buffer's object data
+}
+
+void Init(/*GLFWwindow* window*/)
+{
+    std::wstring vertex_shader_path = L"C:\\DanielT\\GitHub\\Dazzle\\examples\\example_glfw_opengl3\\shaders\\vertex_shader.glsl";
+    std::wstring fragment_shader_path = L"C:\\DanielT\\GitHub\\Dazzle\\examples\\example_glfw_opengl3\\shaders\\fragment_shader.glsl";
+    rendering_program = Utils::CreateShaderProgram(vertex_shader_path.c_str(), fragment_shader_path.c_str());
+
+    camera_x = 0.0f; camera_y = 0.0f; camera_z = 32.0f;
+    // cube_location_x = 0.0f; cube_location_y = -2.0f; cube_location_z = 0.0f;
+    SetupVertices();
+}
+
+void Display(GLFWwindow* window, double current_time)
+{
+    glClear(GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(rendering_program);
+
+    // Get Uniform variables for the Model-View and Projection matrices
+    model_view_location = glGetUniformLocation(rendering_program, "model_view_mtx");
+    perspective_location = glGetUniformLocation(rendering_program, "projection_mtx");
+
+    // Build perspective matrix
+    //glfwGetFramebufferSize(window, &width, &height);
+    aspect = ((float)display_w) / ((float)display_h);
+    perspective_mtx = glm::perspective(1.042f, aspect, 0.1f, 1000.0f);
+
+    // Build view matrix, model matrix and model-view matrix;
+    for (int i = 0; i < 24; ++i)
+    {
+        float time_factor = (float)current_time * speed + i;
+        rotation_mtx = glm::rotate(glm::mat4(1.0), 1.75f * time_factor, glm::vec3(0.0f, 1.0f, 0.0f));
+        rotation_mtx = glm::rotate(rotation_mtx, 1.75f * time_factor, glm::vec3(1.0f, 0.0f, 0.0f));
+        rotation_mtx = glm::rotate(rotation_mtx, 1.75f * time_factor, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        transform_mtx = glm::translate(glm::mat4(1.0f),
+                        glm::vec3(  8.0 * sin(0.35f * time_factor),
+                                    8.0 * cos(0.52f * time_factor),
+                                    8.0 * sin(0.7f * time_factor)));
+
+        model_mtx = transform_mtx * rotation_mtx;
+        view_mtx = glm::translate(glm::mat4(1.0f), glm::vec3(-camera_x, -camera_y, -camera_z));
+        model_view_mtx = view_mtx * model_mtx;
+
+        // Copy Perspective and Model-View matrices to correspoding uniform variables
+        glUniformMatrix4fv(model_view_location, 1, GL_FALSE, glm::value_ptr(model_view_mtx));
+        glUniformMatrix4fv(perspective_location, 1, GL_FALSE, glm::value_ptr(perspective_mtx));
+
+        // Associate VBO with the corresponding vertex attribute in the vertex shader
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glVertexAttribPointer(  0,              // Index of the generic vertex attribute (layout location index in shader)
+                                3,              // Number of components per generic vertex attribute. 1, 2, 3 or 4.
+                                GL_FLOAT,       // Data type
+                                GL_FALSE,       // Should be normalized
+                                0,              // Stride
+                                nullptr);       // Pointer to offset
+        glEnableVertexAttribArray(0);           // Enable index of generic attribute array
+
+        // Adjust OpenGL settings and draw model
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+}
+// ------------------------------------ Multiple Tumbling Cubes ------------------------------------
+
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -61,11 +188,11 @@ int main(int, char**)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
     // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+    const char* glsl_version = "#version 460";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
     // Create window with graphics context
@@ -94,7 +221,7 @@ int main(int, char**)
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
-        style.WindowRounding = 0.0f;
+        style.WindowRounding = 10.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
@@ -104,6 +231,7 @@ int main(int, char**)
     ImGui_ImplGlfw_InstallEmscriptenCanvasResizeCallback("#canvas");
 #endif
     ImGui_ImplOpenGL3_Init(glsl_version);
+    Init();
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -186,13 +314,23 @@ int main(int, char**)
             ImGui::End();
         }
 
+        {
+            ImGui::Begin("Animation Speed");
+            ImGui::SetWindowSize(ImVec2(400, 100));
+            ImGui::SliderFloat("Speed", &speed, 0.0f, 1.0f);
+            ImGui::End();
+        }
+
         // Rendering
         ImGui::Render();
-        int display_w, display_h;
+        // int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        Display(window, glfwGetTime());
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Update and Render additional Platform Windows
