@@ -11,7 +11,7 @@
 #include <iostream>
 #include <stdio.h>
 
-GLuint program, vao;
+GLuint program, VAO, VBO;
 glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 1.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -75,10 +75,11 @@ const GLchar* vertexSource =
     "out vec3 fragColor;\n"
     "uniform mat4 model;\n"
     "uniform mat4 view;\n"
+    "uniform mat4 model_view;\n"
     "uniform mat4 projection;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = projection * view * model * vec4(position, 1.0f);\n"
+    "   gl_Position = projection * model_view * vec4(position, 1.0f);\n"
     "   fragColor = position;\n"
     "}\n";
 
@@ -91,6 +92,11 @@ const GLchar* fragmentSource =
     "   color = vec4(fragColor, 1.0f);\n"
     "}\n";
 
+
+inline float DegreesToRadians(float degrees)
+{
+    return (degrees * 3.14159265359f) / 180.0f;
+}
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -146,48 +152,82 @@ GLuint CreateShaderProgram(const GLchar* vertexShaderSource, const GLchar* fragm
 
 void Init()
 {
+// -------------------------------------------------------------------------------------------------
     // Create Vertex Array Object
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
+    glCreateVertexArrays(1, &VAO);
+// -------------------------------------------------------------------------------------------------
     // Create Vertex Buffer Object
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
+    glCreateBuffers(1, &VBO);
 
-    // Set vertex attribute pointers
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr); // ???
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray(0);
+    // Initialize buffer storage (data store)
+    glNamedBufferStorage(VBO, sizeof(cube_vertices), cube_vertices, 0);
+// -------------------------------------------------------------------------------------------------
+    const GLintptr kOffset = 0;
+    const GLintptr kStride = 0;
+    const GLuint kBindingIndex = 0; // Binding Index (from 0 to GL_MAX_VERTEX_ATTRIB_BINDINGS)
+    const GLuint kAttribIndex = 0;  // Vertex Attribute Index
+    const GLuint kSize = 3;         // The number of values per vertex that are stored in the array.
+    const GLenum kDataType = GL_FLOAT;
+    const GLboolean kNormalized = GL_FALSE;
 
-    // Unbind VAO
-    glBindVertexArray(0);
+    // Bind buffer to vertex array
+    glVertexArrayVertexBuffer(  VAO,                        // Vertex Array Object
+                                kBindingIndex,              // Binding Index
+                                VBO,                        // Vertex Buffer Object
+                                kOffset,                    // Offset (Offset of the first element)
+                                3 * sizeof(float));         // Stride (Distance between elements within the buffer)
+
+    // Specify the format for the given attribute
+    glVertexArrayAttribFormat(  VAO,                        // Vertex Array Object
+                                kAttribIndex,               // (Vertex) Attribute Index
+                                kSize,                      // Size (Number of values per vertex that are stored in the array)
+                                kDataType,                  // Data Type
+                                kNormalized,                // Normalized (if parameter represents a normalized integer)
+                                kOffset);                   // Relative Offset
+
+    // Specify which vertex buffer binding to use for this attribute
+    glVertexArrayAttribBinding( VAO,                        // Vertex Array Object
+                                kAttribIndex,               // (Vertex) Attribute Index
+                                kBindingIndex);             // Binding Index
+
+    // Enable the attribute
+    glEnableVertexArrayAttrib(  VAO,                        // Vertex Array Object
+                                kAttribIndex);              // (Vertex) Attribute Index
+// -------------------------------------------------------------------------------------------------
 
     // Create shader program
     program = CreateShaderProgram(vertexSource, fragmentSource);
 }
 
-void Display()
+void Display(double current_time)
 {
     glUseProgram(program);
     // Set up transformations
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3( 0.0, 0.0, 0.0));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, 0.0));
     glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
 
+    glm::mat4 model_view = view * model;
+
     // Get the uniform locations
-    GLint modelLoc = glGetUniformLocation(program, "model");
-    GLint viewLoc = glGetUniformLocation(program, "view");
+    GLint modelViewLoc = glGetUniformLocation(program, "model_view");
+    // GLint modelLoc = glGetUniformLocation(program, "model");
+    // GLint viewLoc = glGetUniformLocation(program, "view");
     GLint projectionLoc = glGetUniformLocation(program, "projection");
 
     // Pass the transformation matrices to the shader
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, glm::value_ptr(model_view));
+    // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     // Draw the cube
-    glBindVertexArray(vao);
+    glBindVertexArray(VAO);
+
+    glEnable(GL_CULL_FACE);     // GL_CULL_FACE: Cull polygons based on their winding order.
+    glCullFace(GL_BACK);        // glCullFace(): Specify whether front- or back-facing are culled.
+    glFrontFace(GL_CCW);        // GL_CCW//GL_CW: Specify the orientation of front-facing polygons.
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
@@ -328,7 +368,7 @@ int main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        Display();
+        Display(glfwGetTime());
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
