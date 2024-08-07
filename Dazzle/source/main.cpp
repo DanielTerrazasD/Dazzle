@@ -16,24 +16,6 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-GLuint CompileShader(GLenum type, const GLchar* source)
-{
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
-
-    GLint success = 0;
-    GLchar info_log[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, info_log);
-        std::cout << "Error compiling shader: " << info_log << std::endl;
-    }
-
-    return shader;
-}
-
 // Function to handle keyboard input
 void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
