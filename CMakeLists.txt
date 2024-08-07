@@ -16,5 +16,6 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 # Add all the required sub directories
 # TODO: Add an option() check to whether build the examples or not.
+add_subdirectory(Dazzle)
 add_subdirectory(examples)
 add_subdirectory(vendor/glfw)
