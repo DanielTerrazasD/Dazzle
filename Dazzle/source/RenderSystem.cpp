@@ -1,4 +1,6 @@
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #include "RenderSystem.hpp"
@@ -76,10 +78,30 @@ void Dazzle::GL::DebugMessageCallback(  GLenum source,
 }
 
 Dazzle::GL::ShaderId::ShaderId() : mHandle(0) {}
+Dazzle::GL::ShaderId::ShaderId(const ShaderId& other) : mHandle(other.mHandle) {}
+
+Dazzle::GL::ShaderId::ShaderId(ShaderId&& other) noexcept : mHandle(other.mHandle) 
+{
+    other.mHandle = 0;
+}
 
 Dazzle::GL::ShaderId::~ShaderId()
 {
-    glDeleteShader(mHandle);
+    if (this->IsValid())
+        glDeleteShader(mHandle);
+}
+
+Dazzle::GL::ShaderId& Dazzle::GL::ShaderId::operator=(const ShaderId& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::GL::ShaderId& Dazzle::GL::ShaderId::operator=(ShaderId&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
 }
 
 GLuint Dazzle::GL::ShaderId::GetHandle() const
@@ -96,10 +118,8 @@ Dazzle::GL::ShaderBuilder::ShaderBuilder() {}
 
 Dazzle::GL::ShaderBuilder::~ShaderBuilder() {}
 
-Dazzle::GL::ShaderId Dazzle::GL::ShaderBuilder::Create(const GLenum& type, const std::string& source)
+void Dazzle::GL::ShaderBuilder::Create(const GLenum& type, const std::string& source, ShaderId& res)
 {
-    ShaderId s;
-
     switch (type)
     {
     case GL_VERTEX_SHADER:
@@ -112,35 +132,54 @@ Dazzle::GL::ShaderId Dazzle::GL::ShaderBuilder::Create(const GLenum& type, const
 
     default:
         // Error: GL_INVALID_ENUM
-        s = ShaderId();
-        return s;
+        res.mHandle = 0;
+        return;
     }
 
-    s.mHandle = glCreateShader(type);
+    res.mHandle = glCreateShader(type);
     const GLchar* sourcePtr = source.c_str();
     GLint sourceLength = static_cast<GLint>(source.size());
-    glShaderSource(s.mHandle, 1, &sourcePtr, &sourceLength);
-    glCompileShader(s.mHandle);
+    glShaderSource(res.mHandle, 1, &sourcePtr, &sourceLength);
+    glCompileShader(res.mHandle);
 
     GLint compileStatus;
-    glGetShaderiv(s.mHandle, GL_COMPILE_STATUS, &compileStatus);
+    glGetShaderiv(res.mHandle, GL_COMPILE_STATUS, &compileStatus);
     if (compileStatus != GL_TRUE)
     {
         GLint logLength;
-        glGetShaderiv(s.mHandle, GL_INFO_LOG_LENGTH, &logLength);
+        glGetShaderiv(res.mHandle, GL_INFO_LOG_LENGTH, &logLength);
         std::string log(logLength, '\0');
-        glGetShaderInfoLog(s.mHandle, logLength, &logLength, &log[0]);
+        glGetShaderInfoLog(res.mHandle, logLength, &logLength, &log[0]);
         std::cerr << "Shader compilation failed:\n" << log << '\n';
     }
-
-    return s;
 }
 
+
 Dazzle::GL::ProgramId::ProgramId() : mHandle(0) {}
+Dazzle::GL::ProgramId::ProgramId(const ProgramId& other) : mHandle(other.mHandle) {}
+
+Dazzle::GL::ProgramId::ProgramId(ProgramId&& other) noexcept : mHandle(other.mHandle)
+{
+    other.mHandle = 0;
+}
 
 Dazzle::GL::ProgramId::~ProgramId()
 {
-    glDeleteProgram(mHandle);
+    if (this->IsValid())
+        glDeleteShader(mHandle);
+}
+
+Dazzle::GL::ProgramId& Dazzle::GL::ProgramId::operator=(const ProgramId& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::GL::ProgramId& Dazzle::GL::ProgramId::operator=(ProgramId&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
 }
 
 GLuint Dazzle::GL::ProgramId::GetHandle() const
@@ -157,11 +196,9 @@ Dazzle::GL::ProgramBuilder::ProgramBuilder() {}
 
 Dazzle::GL::ProgramBuilder::~ProgramBuilder() {}
 
-Dazzle::GL::ProgramId Dazzle::GL::ProgramBuilder::Create()
+void Dazzle::GL::ProgramBuilder::Create(ProgramId& program)
 {
-    ProgramId p{};
-    p.mHandle = glCreateProgram();
-    return p;
+    program.mHandle = glCreateProgram();
 }
 
 void Dazzle::GL::ProgramBuilder::AttachShader(const ShaderId& shader, const ProgramId& program)
@@ -191,57 +228,76 @@ void Dazzle::GL::ProgramBuilder::Link(const ProgramId& program)
     }
 }
 
-void Dazzle::ShaderManager::LoadShader(const ShaderSources& sources)
+std::string Dazzle::FileLoader::ReadFile(const std::string& path)
 {
-    GL::ShaderId vs{};  // Vertex shader
-    GL::ShaderId tcs{}; // Tessellation control shader
-    GL::ShaderId tes{}; // Tessellation evalation shader
-    GL::ShaderId gs{};  // Geometry shader
-    GL::ShaderId fs{};  // Fragment shader
-    GL::ShaderId cs{};  // Fragment shader
+    std::fstream file(path, std::ios::in);
+
+    if (!file.is_open())
+    {
+        std::ostringstream message;
+        message << "Could not open file:\n" << path;
+        throw std::runtime_error(message.str());
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+void Dazzle::ShaderManager::LoadShader(const ShaderSources& sources, const ShaderEffect& effect)
+{
+    GL::ShaderId vs;  // Vertex shader
+    GL::ShaderId tcs; // Tessellation control shader
+    GL::ShaderId tes; // Tessellation evalation shader
+    GL::ShaderId gs;  // Geometry shader
+    GL::ShaderId fs;  // Fragment shader
+    GL::ShaderId cs;  // Fragment shader
 
     GL::ShaderBuilder glShaderBuilder{};
 
     if (!sources.mVSSC.empty())
-        vs = glShaderBuilder.Create(GL_VERTEX_SHADER, sources.mVSSC);
+        glShaderBuilder.Create(GL_VERTEX_SHADER, sources.mVSSC, vs);
 
     if (!sources.mTCSSC.empty())
-        tcs = glShaderBuilder.Create(GL_TESS_CONTROL_SHADER, sources.mTCSSC);
+        glShaderBuilder.Create(GL_TESS_CONTROL_SHADER, sources.mTCSSC, tcs);
 
     if (!sources.mTESSC.empty())
-        tes = glShaderBuilder.Create(GL_TESS_EVALUATION_SHADER, sources.mTESSC);
+        glShaderBuilder.Create(GL_TESS_EVALUATION_SHADER, sources.mTESSC, tes);
 
     if (!sources.mGSSC.empty())
-        gs = glShaderBuilder.Create(GL_GEOMETRY_SHADER, sources.mGSSC);
+        glShaderBuilder.Create(GL_GEOMETRY_SHADER, sources.mGSSC, gs);
 
     if (!sources.mFSSC.empty())
-        fs = glShaderBuilder.Create(GL_FRAGMENT_SHADER, sources.mFSSC);
+        glShaderBuilder.Create(GL_FRAGMENT_SHADER, sources.mFSSC, fs);
 
     if (!sources.mCSSC.empty())
-        cs = glShaderBuilder.Create(GL_COMPUTE_SHADER, sources.mCSSC);
+        glShaderBuilder.Create(GL_COMPUTE_SHADER, sources.mCSSC, cs);
 
+    GL::ProgramId program;
     GL::ProgramBuilder glProgramBuilder{};
-    GL::ProgramId p = glProgramBuilder.Create();
+    glProgramBuilder.Create(program);
 
     if (vs.IsValid())
-        glProgramBuilder.AttachShader(vs, p);
+        glProgramBuilder.AttachShader(vs, program);
 
     if (tcs.IsValid())
-        glProgramBuilder.AttachShader(tcs, p);
+        glProgramBuilder.AttachShader(tcs, program);
 
     if (tes.IsValid())
-        glProgramBuilder.AttachShader(tes, p);
+        glProgramBuilder.AttachShader(tes, program);
 
     if (gs.IsValid())
-        glProgramBuilder.AttachShader(gs, p);
+        glProgramBuilder.AttachShader(gs, program);
 
     if (fs.IsValid())
-        glProgramBuilder.AttachShader(fs, p);
+        glProgramBuilder.AttachShader(fs, program);
 
     if (cs.IsValid())
-        glProgramBuilder.AttachShader(cs, p);
+        glProgramBuilder.AttachShader(cs, program);
 
-    glProgramBuilder.Link(p);
-    // if (p.IsValid())
-        // Insert it into the mShaders map.
+    glProgramBuilder.Link(program);
+    if (program.IsValid() && mShaders.find(effect) == mShaders.end())
+    {
+        mShaders.emplace(effect, std::move(program));
+    }
 }

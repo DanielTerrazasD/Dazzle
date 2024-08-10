@@ -2,6 +2,7 @@
 #define _RENDER_SYSTEM_HPP_
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <GL/gl3w.h>
@@ -20,7 +21,13 @@ namespace Dazzle
         {
         public:
             ShaderId();
+            ShaderId(const ShaderId& other);
+            ShaderId(ShaderId&& other) noexcept;
             ~ShaderId();
+
+            ShaderId& operator=(const ShaderId& other);
+            ShaderId& operator=(ShaderId&& other) noexcept;
+
             GLuint GetHandle() const;
             bool IsValid() const;
         private:
@@ -33,14 +40,20 @@ namespace Dazzle
         public:
             ShaderBuilder();
             ~ShaderBuilder();
-            ShaderId Create(const GLenum& type, const std::string& source);
+            void Create(const GLenum& type, const std::string& source, ShaderId& res);
         };
 
         class ProgramId
         {
         public:
             ProgramId();
+            ProgramId(const ProgramId& other);
+            ProgramId(ProgramId&& other) noexcept;
             ~ProgramId();
+
+            ProgramId& operator=(const ProgramId& program);
+            ProgramId& operator=(ProgramId&& program) noexcept;
+
             GLuint GetHandle() const;
             bool IsValid() const;
         private:
@@ -53,7 +66,7 @@ namespace Dazzle
         public:
             ProgramBuilder();
             ~ProgramBuilder();
-            ProgramId Create();
+            void Create(ProgramId& program);
             void AttachShader(const ShaderId& shader, const ProgramId& program);
             void Link(const ProgramId& program);
         };
@@ -69,35 +82,10 @@ namespace Dazzle
 
     }
 
-    enum class ShaderType
+    struct FileLoader
     {
-        VERTEX_SHADER =             1 << 0,
-        TESS_CONTROL_SHADER =       1 << 1,
-        TESS_EVALUATION_SHADER =    1 << 2,
-        GEOMETRY_SHADER =           1 << 3,
-        FRAGMENT_SHADER =           1 << 4,
-        COMPUTE_SHADER =            1 << 5
+        static std::string ReadFile(const std::string& path);
     };
-
-    inline ShaderType operator|(ShaderType lhs, ShaderType rhs)
-    {
-        return static_cast<ShaderType>(
-            static_cast<std::underlying_type<ShaderType>::type>(lhs) |
-            static_cast<std::underlying_type<ShaderType>::type>(rhs));
-    }
-
-    inline ShaderType operator&(ShaderType lhs, ShaderType rhs)
-    {
-        return static_cast<ShaderType>(
-            static_cast<std::underlying_type<ShaderType>::type>(lhs) &
-            static_cast<std::underlying_type<ShaderType>::type>(rhs));
-    }
-
-    inline bool hasType(ShaderType bitField, ShaderType type)
-    {
-        return (static_cast<std::underlying_type<ShaderType>::type>(bitField) &
-                static_cast<std::underlying_type<ShaderType>::type>(type)) != 0;
-    }
 
     struct ShaderSources
     {
@@ -107,15 +95,87 @@ namespace Dazzle
         std::string mGSSC;  // Geometry Shader Source Code
         std::string mFSSC;  // Fragment Shader Source Code
         std::string mCSSC;  // Compute Shader Source Code
+
+        void SetVertexShader(const std::string& source) { mVSSC = source; }
+        void SetTessControlShader(const std::string& source) { mTCSSC = source; }
+        void SetTessEvaluationShader(const std::string& source) { mTESSC = source; }
+        void SetGeometryShader(const std::string& source) { mGSSC = source; }
+        void SetFragmentShader(const std::string& source) { mFSSC = source; }
+        void SetComputeShader(const std::string& source) { mCSSC = source; }
     };
 
+    enum class ShaderEffect;
     class ShaderManager
     {
     public:
-        void LoadShader(const ShaderSources& sources);
-        void UseShader(/*Select by shaderId or shaderName*/);
+        void LoadShader(const ShaderSources& sources, const ShaderEffect& effect);
+        void UseShader(const ShaderEffect& effect);
     private:
-        // std::unordered_map<> mShaders;
+        std::unordered_map<ShaderEffect, GL::ProgramId> mShaders;
+    };
+
+    enum class ShaderEffect
+    {
+        // Basic Materials
+        kSimpleShader,
+        kStandardShader,
+        kFlatColorShader,
+
+        // Lighting Effects
+        kDiffuseLighting,
+        kSpecularLighting,
+        kAmbientOcclusion,
+        kReflectionShader,
+
+        // Post-Processing Effects
+        kBloom,
+        kMotionBlur,
+        kDepthOfField,
+        kColorGrading,
+        kEdgeDetection,
+
+        // Texturing and Surface
+        kTextureMapping,
+        kNormalMapping,
+        kParallaxMapping,
+        kBumpMapping,
+        kProceduralTextures,
+
+        // Visual Effects
+        kGlow,
+        kOutline,
+        kWaterShader,
+        kFireShader,
+        kIceShader,
+
+        // Distortion Effects
+        kWaveDistortion,
+        kRefraction,
+        kRippleEffect,
+        kHeatHaze,
+
+        // UI Effects
+        kButtonHighlight,
+        kPanelGlow,
+        kTextShadow,
+        kFadeTransition,
+
+        // Environment Effects
+        kFog,
+        kRainShader,
+        kSnowShader,
+        kCloudShader,
+
+        // Special Effects
+        kMagicEffect,
+        kPortalEffect,
+        kEnergyField,
+        kParticleShader,
+
+        // Debugging and Development
+        kDebugNormals,
+        kWireframeView,
+        kUVGrid
     };
 }
 #endif // _RENDER_SYSTEM_HPP_
