@@ -6,6 +6,9 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME Dazzle)
 project (${PROJECT_NAME})
 
+# Set output directories for different build types
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/bin/$<CONFIG>")
+
 # Required packages
 find_package(OpenGL REQUIRED)
 
@@ -32,6 +35,8 @@ set(HEADERS
 
 # Add an executable with the above sources
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 # Specify GLFW_INCLUDE_NONE=1 to not include GLFW any OpenGL headers
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
@@ -50,4 +55,12 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}/vendor/imgui/backends
         ${CMAKE_SOURCE_DIR}/vendor/gl3w/include
         ${CMAKE_SOURCE_DIR}/vendor/glm
+)
+
+# Add a post-build custom command to copy the Assets into the output directory.
+set(ASSETS_SOURCE "${CMAKE_SOURCE_DIR}/Assets")
+set(ASSETS_DEST "${CMAKE_BINARY_DIR}/Assets")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_SOURCE} ${ASSETS_DEST}
+    COMMENT "Copying files from ${ASSETS_SOURCE} to ${ASSETS_DEST}"
 )
