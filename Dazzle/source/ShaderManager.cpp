@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "ShaderManager.hpp"
+#include "FileManager.hpp"
+#include "Singleton.hpp"
 
 Dazzle::GL::VAO::VAO() : mHandle(0) {}
 Dazzle::GL::VAO::VAO(const VAO& other) : mHandle(other.mHandle) {}
@@ -195,9 +197,26 @@ Dazzle::ShaderObject::~ShaderObject()
 
 }
 
-Dazzle::SimpleShader::SimpleShader()
+Dazzle::SimpleShader::SimpleShader() : mProgram(GL::ProgramId()), mVAO(GL::VAO())
 {
+    auto vs = FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.vs.glsl");
+    auto fs = FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.fs.glsl");
 
+    GL::ShaderBuilder shaderBuilder;
+    GL::ProgramBuilder programBuilder;
+
+    GL::ShaderId vertexShader;
+    GL::ShaderId fragmentShader;
+    shaderBuilder.Create(GL_VERTEX_SHADER, vs, vertexShader);
+    shaderBuilder.Create(GL_FRAGMENT_SHADER, fs, fragmentShader);
+
+    GL::ProgramId program;
+    programBuilder.Create(program);
+    programBuilder.AttachShader(vertexShader, program);
+    programBuilder.AttachShader(fragmentShader, program);
+    programBuilder.Link(program);
+
+    mProgram = std::move(program);
 }
 
 Dazzle::SimpleShader::~SimpleShader()
@@ -210,7 +229,14 @@ void Dazzle::SimpleShader::Use() const
 
 }
 
-void Dazzle::ShaderManager::UseShader(const ShaderObject& shader)
+
+void Dazzle::ShaderManager::UseShader(const ShaderObject* const shader)
 {
 
+}
+
+
+Dazzle::ShaderObject* Dazzle::ShaderManager::GetSimpleShader()
+{
+    return mSimpleShader.GetInstance();
 }

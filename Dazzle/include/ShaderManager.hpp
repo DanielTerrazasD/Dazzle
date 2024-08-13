@@ -82,23 +82,6 @@ namespace Dazzle
         };
     }
 
-    struct ShaderSources
-    {
-        std::string mVSSC;  // Vertex Shader Source Code
-        std::string mTCSSC; // Tessellation Control Shader Source Code
-        std::string mTESSC; // Tessellation Evaluation Shader Source Code
-        std::string mGSSC;  // Geometry Shader Source Code
-        std::string mFSSC;  // Fragment Shader Source Code
-        std::string mCSSC;  // Compute Shader Source Code
-
-        void SetVertexShader(const std::string& source) { mVSSC = source; }
-        void SetTessControlShader(const std::string& source) { mTCSSC = source; }
-        void SetTessEvaluationShader(const std::string& source) { mTESSC = source; }
-        void SetGeometryShader(const std::string& source) { mGSSC = source; }
-        void SetFragmentShader(const std::string& source) { mFSSC = source; }
-        void SetComputeShader(const std::string& source) { mCSSC = source; }
-    };
-
     // ShaderEffects
     // {
     //     // Basic Materials
@@ -174,7 +157,7 @@ namespace Dazzle
     {
     public:
         SimpleShader();
-        ~SimpleShader() override;
+        virtual ~SimpleShader() override;
         virtual void Use() const override;
 
     private:
@@ -185,13 +168,14 @@ namespace Dazzle
     class ShaderManager
     {
     public:
-        ~ShaderManager();
-        void UseShader(const ShaderObject& shader);
+        static void UseShader(const ShaderObject* const shader);
 
-        ShaderObject& GetSimpleShader() { return mSimpleShader.GetInstance(); }
+        static ShaderObject* GetSimpleShader();
+        // static ShaderObject* GetStandardShader();
+        // ...
 
     private:
-        Singleton<ShaderObject, SimpleShader> mSimpleShader;
+        static Singleton<ShaderObject, SimpleShader> mSimpleShader;
     };
 }
 
