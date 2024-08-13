@@ -15,7 +15,9 @@ find_package(OpenGL REQUIRED)
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
     source/main.cpp
+    source/FileManager.cpp
     source/RenderSystem.cpp
+    source/ShaderManager.cpp
     source/WindowSystem.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
@@ -29,6 +31,9 @@ set(SOURCES
 
 set(HEADERS
     include/DazzleEngine.hpp
+    include/FileManager.hpp
+    include/Singleton.hpp
+    include/ShaderManager.hpp
     include/RenderSystem.hpp
     include/WindowSystem.hpp
 )
