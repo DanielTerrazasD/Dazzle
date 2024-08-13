@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project (example_win32_opengl3)
+set(PROJECT_NAME win32_and_opengl3)
+project (${PROJECT_NAME})
 
 # Required packages
 find_package(OpenGL REQUIRED)
@@ -20,10 +21,13 @@ set(SOURCES
 )
 
 # Add an executable with the above sources
-add_executable(example_win32_opengl3 ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Add this project to the "examples" folder.
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "examples")
 
 # Set the directories that should be included in the build command for this target
-target_include_directories(example_win32_opengl3
+target_include_directories(${PROJECT_NAME}
     PRIVATE 
         ${PROJECT_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/vendor/imgui
@@ -31,4 +35,4 @@ target_include_directories(example_win32_opengl3
 )
 
 # Link required libraries for this target
-target_link_libraries(example_win32_opengl3 PRIVATE OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)

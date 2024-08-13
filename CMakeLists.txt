@@ -2,10 +2,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(Dazzle)
+set(PROJECT_NAME Dazzle)
+project (${PROJECT_NAME})
 
 # Set the c++ standard version
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

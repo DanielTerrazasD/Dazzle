@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project (example_mahogany)
+set(PROJECT_NAME glfw_and_opengl3)
+project (${PROJECT_NAME})
 
 # Required packages
 find_package(OpenGL REQUIRED)
@@ -10,6 +11,7 @@ find_package(OpenGL REQUIRED)
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
     source/main.cpp
+    source/Utils.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp
@@ -21,19 +23,22 @@ set(SOURCES
 )
 
 # Add an executable with the above sources
-add_executable(example_mahogany ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Add this project to the "examples" folder.
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "examples")
 
 # Specify GLFW_INCLUDE_NONE=1 to not include GLFW any OpenGL headers
-target_compile_definitions(example_mahogany PRIVATE GLFW_INCLUDE_NONE)
+target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
 # Specify IMGUI_IMPL_OPENGL_LOADER_CUSTOM=1 to use gl3w from vendor's folder instead
-target_compile_definitions(example_mahogany PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 
 # Link required libraries for this target
-target_link_libraries(example_mahogany PRIVATE OpenGL::GL)
-target_link_libraries(example_mahogany PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Set the directories that should be included in the build command for this target
-target_include_directories(example_mahogany
+target_include_directories(${PROJECT_NAME}
     PRIVATE 
         ${PROJECT_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/vendor/imgui

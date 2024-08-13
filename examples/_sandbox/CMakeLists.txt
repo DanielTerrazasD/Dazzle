@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
 # Define project name variable
-set(PROJECT_NAME Sandbox)
+set(PROJECT_NAME sandbox)
 project (${PROJECT_NAME})
 
 # Required packages
@@ -24,6 +24,9 @@ set(SOURCES
 
 # Add an executable with the above sources
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Add this project to the "examples" folder.
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "examples")
 
 # Specify GLFW_INCLUDE_NONE=1 to not include GLFW any OpenGL headers
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)

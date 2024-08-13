@@ -40,7 +40,8 @@ set(HEADERS
 
 # Add an executable with the above sources
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
+# Configure the Debugging Working Directory
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 # Specify GLFW_INCLUDE_NONE=1 to not include GLFW any OpenGL headers
