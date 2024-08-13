@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "RenderSystem.hpp"
+#include "ShaderManager.hpp"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -82,15 +83,10 @@ int main(int, char**)
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    std::cout << "File system path: " << std::filesystem::current_path() << "\n";
-    Dazzle::GL::SetupDebugMessageCallback();
+    Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
 
-    Dazzle::ShaderSources res;
-    res.SetVertexShader(Dazzle::FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.vs.glsl"));
-    res.SetFragmentShader(Dazzle::FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.fs.glsl"));
-
-    Dazzle::ShaderManager shaderManager;
-    shaderManager.LoadShader(res, Dazzle::ShaderEffect::kSimpleShader);
+    auto simpleShader = Dazzle::ShaderManager::GetSimpleShader();
+    Dazzle::ShaderManager::UseShader(simpleShader);
 
     while (!glfwWindowShouldClose(window))
     {
