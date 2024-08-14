@@ -4,84 +4,11 @@
 #include <GL/gl3w.h>
 
 #include "DazzleEngine.hpp"
+#include "ShadingEffects.hpp"
 #include "Singleton.hpp"
 
 namespace Dazzle
 {
-    namespace GL
-    {
-        class VAO
-        {
-        public:
-            VAO();
-            VAO(const VAO& other);
-            VAO(VAO&& other) noexcept;
-            ~VAO();
-
-            VAO& operator=(const VAO& program);
-            VAO& operator=(VAO&& program) noexcept;
-
-            GLuint GetHandle() const;
-            bool IsValid() const;
-        private:
-            GLuint mHandle;
-        };
-
-        class ShaderId
-        {
-        public:
-            ShaderId();
-            ShaderId(const ShaderId& other);
-            ShaderId(ShaderId&& other) noexcept;
-            ~ShaderId();
-
-            ShaderId& operator=(const ShaderId& other);
-            ShaderId& operator=(ShaderId&& other) noexcept;
-
-            GLuint GetHandle() const;
-            bool IsValid() const;
-        private:
-            friend class ShaderBuilder;
-            GLuint mHandle;
-        };
-
-        class ShaderBuilder
-        {
-        public:
-            ShaderBuilder();
-            ~ShaderBuilder();
-            void Create(const GLenum& type, const std::string& source, ShaderId& res);
-        };
-
-        class ProgramId
-        {
-        public:
-            ProgramId();
-            ProgramId(const ProgramId& other);
-            ProgramId(ProgramId&& other) noexcept;
-            ~ProgramId();
-
-            ProgramId& operator=(const ProgramId& program);
-            ProgramId& operator=(ProgramId&& program) noexcept;
-
-            GLuint GetHandle() const;
-            bool IsValid() const;
-        private:
-            friend class ProgramBuilder;
-            GLuint mHandle;
-        };
-
-        class ProgramBuilder
-        {
-        public:
-            ProgramBuilder();
-            ~ProgramBuilder();
-            void Create(ProgramId& program);
-            void AttachShader(const ShaderId& shader, const ProgramId& program);
-            void Link(const ProgramId& program);
-        };
-    }
-
     // ShaderEffects
     // {
     //     // Basic Materials
@@ -145,25 +72,6 @@ namespace Dazzle
     //     kWireframeView,
     //     kUVGrid
     // };
-
-    class ShaderObject
-    {
-    public:
-        virtual ~ShaderObject() = 0;
-        virtual void Use() const = 0;
-    };
-
-    class SimpleShader : public ShaderObject
-    {
-    public:
-        SimpleShader();
-        virtual ~SimpleShader() override;
-        virtual void Use() const override;
-
-    private:
-        GL::VAO mVAO;
-        GL::ProgramId mProgram;
-    };
 
     class ShaderManager
     {

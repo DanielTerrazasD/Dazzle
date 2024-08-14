@@ -18,6 +18,7 @@ set(SOURCES
     source/FileManager.cpp
     source/RenderSystem.cpp
     source/ShaderManager.cpp
+    source/ShadingEffects.cpp
     source/WindowSystem.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
@@ -34,6 +35,7 @@ set(HEADERS
     include/FileManager.hpp
     include/Singleton.hpp
     include/ShaderManager.hpp
+    include/ShadingEffects.hpp
     include/RenderSystem.hpp
     include/WindowSystem.hpp
 )

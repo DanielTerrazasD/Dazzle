@@ -73,3 +73,192 @@ void Dazzle::RenderSystem::GL::DebugMessageCallback(  GLenum source,
     // Optionally, throw an exception or assert:
     throw std::runtime_error(message);
 }
+
+
+Dazzle::RenderSystem::GL::VAO::VAO() : mHandle(0) {}
+Dazzle::RenderSystem::GL::VAO::VAO(const VAO& other) : mHandle(other.mHandle) {}
+
+Dazzle::RenderSystem::GL::VAO::VAO(VAO&& other) noexcept : mHandle(other.mHandle) 
+{
+    other.mHandle = 0;
+}
+
+Dazzle::RenderSystem::GL::VAO::~VAO()
+{
+    if (this->IsValid())
+        glDeleteShader(mHandle);
+}
+
+Dazzle::RenderSystem::GL::VAO& Dazzle::RenderSystem::GL::VAO::operator=(const VAO& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::RenderSystem::GL::VAO& Dazzle::RenderSystem::GL::VAO::operator=(VAO&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
+}
+
+GLuint Dazzle::RenderSystem::GL::VAO::GetHandle() const
+{
+    return mHandle;
+}
+
+bool Dazzle::RenderSystem::GL::VAO::IsValid() const
+{
+    return mHandle > 0;
+}
+
+Dazzle::RenderSystem::GL::ShaderId::ShaderId() : mHandle(0) {}
+Dazzle::RenderSystem::GL::ShaderId::ShaderId(const ShaderId& other) : mHandle(other.mHandle) {}
+
+Dazzle::RenderSystem::GL::ShaderId::ShaderId(ShaderId&& other) noexcept : mHandle(other.mHandle) 
+{
+    other.mHandle = 0;
+}
+
+Dazzle::RenderSystem::GL::ShaderId::~ShaderId()
+{
+    if (this->IsValid())
+        glDeleteShader(mHandle);
+}
+
+Dazzle::RenderSystem::GL::ShaderId& Dazzle::RenderSystem::GL::ShaderId::operator=(const ShaderId& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::RenderSystem::GL::ShaderId& Dazzle::RenderSystem::GL::ShaderId::operator=(ShaderId&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
+}
+
+GLuint Dazzle::RenderSystem::GL::ShaderId::GetHandle() const
+{
+    return mHandle;
+}
+
+bool Dazzle::RenderSystem::GL::ShaderId::IsValid() const
+{
+    return mHandle > 0;
+}
+
+Dazzle::RenderSystem::GL::ShaderBuilder::ShaderBuilder() {}
+
+Dazzle::RenderSystem::GL::ShaderBuilder::~ShaderBuilder() {}
+
+void Dazzle::RenderSystem::GL::ShaderBuilder::Create(const GLenum& type, const std::string& source, ShaderId& res)
+{
+    switch (type)
+    {
+    case GL_VERTEX_SHADER:
+    case GL_TESS_CONTROL_SHADER:
+    case GL_TESS_EVALUATION_SHADER:
+    case GL_GEOMETRY_SHADER:
+    case GL_FRAGMENT_SHADER:
+    case GL_COMPUTE_SHADER:
+        break;
+
+    default:
+        // Error: GL_INVALID_ENUM
+        res.mHandle = 0;
+        return;
+    }
+
+    res.mHandle = glCreateShader(type);
+    const GLchar* sourcePtr = source.c_str();
+    GLint sourceLength = static_cast<GLint>(source.size());
+    glShaderSource(res.mHandle, 1, &sourcePtr, &sourceLength);
+    glCompileShader(res.mHandle);
+
+    GLint compileStatus;
+    glGetShaderiv(res.mHandle, GL_COMPILE_STATUS, &compileStatus);
+    if (compileStatus != GL_TRUE)
+    {
+        GLint logLength;
+        glGetShaderiv(res.mHandle, GL_INFO_LOG_LENGTH, &logLength);
+        std::string log(logLength, '\0');
+        glGetShaderInfoLog(res.mHandle, logLength, &logLength, &log[0]);
+        std::cerr << "Shader compilation failed:\n" << log << '\n';
+    }
+}
+
+
+Dazzle::RenderSystem::GL::ProgramId::ProgramId() : mHandle(0) {}
+Dazzle::RenderSystem::GL::ProgramId::ProgramId(const ProgramId& other) : mHandle(other.mHandle) {}
+
+Dazzle::RenderSystem::GL::ProgramId::ProgramId(ProgramId&& other) noexcept : mHandle(other.mHandle)
+{
+    other.mHandle = 0;
+}
+
+Dazzle::RenderSystem::GL::ProgramId::~ProgramId()
+{
+    if (this->IsValid())
+        glDeleteShader(mHandle);
+}
+
+Dazzle::RenderSystem::GL::ProgramId& Dazzle::RenderSystem::GL::ProgramId::operator=(const ProgramId& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::RenderSystem::GL::ProgramId& Dazzle::RenderSystem::GL::ProgramId::operator=(ProgramId&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
+}
+
+GLuint Dazzle::RenderSystem::GL::ProgramId::GetHandle() const
+{
+    return mHandle;
+}
+
+bool Dazzle::RenderSystem::GL::ProgramId::IsValid() const
+{
+    return mHandle > 0;
+}
+
+Dazzle::RenderSystem::GL::ProgramBuilder::ProgramBuilder() {}
+
+Dazzle::RenderSystem::GL::ProgramBuilder::~ProgramBuilder() {}
+
+void Dazzle::RenderSystem::GL::ProgramBuilder::Create(ProgramId& program)
+{
+    program.mHandle = glCreateProgram();
+}
+
+void Dazzle::RenderSystem::GL::ProgramBuilder::AttachShader(const ShaderId& shader, const ProgramId& program)
+{
+    if (glIsShader(shader.GetHandle()) != GL_TRUE)
+    {
+        std::cerr << "Unable to attach Shader to Program: Invalid Shader Object\n";
+        return;
+    }
+
+    glAttachShader(program.GetHandle(), shader.GetHandle());
+}
+
+void Dazzle::RenderSystem::GL::ProgramBuilder::Link(const ProgramId& program)
+{
+    glLinkProgram(program.GetHandle());
+
+    GLint linkageStatus;
+    glGetProgramiv(program.GetHandle(), GL_LINK_STATUS, &linkageStatus);
+    if (linkageStatus != GL_TRUE)
+    {
+        GLint logLength;
+        glGetProgramiv(program.GetHandle(), GL_INFO_LOG_LENGTH, &logLength);
+        std::string log(logLength, '\0');
+        glGetProgramInfoLog(program.GetHandle(), logLength, &logLength, &log[0]);
+        std::cerr << "Program linkage failed:\n" << log << '\n';
+    }
+}
