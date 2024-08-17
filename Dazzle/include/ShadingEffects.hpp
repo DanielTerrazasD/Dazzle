@@ -7,14 +7,14 @@
 namespace Dazzle
 {
 
-    class ShaderObject
+    class ShadingEffect
     {
     public:
-        virtual ~ShaderObject() = 0;
+        virtual ~ShadingEffect() = 0;
         virtual void Use() const = 0;
     };
 
-    class SimpleShader : public ShaderObject
+    class SimpleShader : public ShadingEffect
     {
     public:
         SimpleShader();
@@ -23,7 +23,7 @@ namespace Dazzle
 
     private:
         RenderSystem::GL::VAO mVAO;
-        RenderSystem::GL::ProgramId mProgram;
+        RenderSystem::GL::ProgramObject mProgram;
     };
 }
 

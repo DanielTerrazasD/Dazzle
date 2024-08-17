@@ -1,12 +1,12 @@
 #include "FileManager.hpp"
 #include "ShadingEffects.hpp"
 
-Dazzle::ShaderObject::~ShaderObject()
+Dazzle::ShadingEffect::~ShadingEffect()
 {
 
 }
 
-Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramId()), mVAO(RenderSystem::GL::VAO())
+Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramObject()), mVAO(RenderSystem::GL::VAO())
 {
     auto vs = FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.vs.glsl");
     auto fs = FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.fs.glsl");
@@ -14,12 +14,12 @@ Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramId()), 
     RenderSystem::GL::ShaderBuilder shaderBuilder;
     RenderSystem::GL::ProgramBuilder programBuilder;
 
-    RenderSystem::GL::ShaderId vertexShader;
-    RenderSystem::GL::ShaderId fragmentShader;
+    RenderSystem::GL::ShaderObject vertexShader;
+    RenderSystem::GL::ShaderObject fragmentShader;
     shaderBuilder.Create(GL_VERTEX_SHADER, vs, vertexShader);
     shaderBuilder.Create(GL_FRAGMENT_SHADER, fs, fragmentShader);
 
-    RenderSystem::GL::ProgramId program;
+    RenderSystem::GL::ProgramObject program;
     programBuilder.Create(program);
     programBuilder.AttachShader(vertexShader, program);
     programBuilder.AttachShader(fragmentShader, program);

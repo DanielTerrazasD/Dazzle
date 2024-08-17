@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include "RenderSystem.hpp"
@@ -9,7 +10,23 @@ void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
 
     if (contextFlags & GL_CONTEXT_FLAG_DEBUG_BIT)
     {
+        const GLubyte* renderer = glGetString(GL_RENDERER);
+        const GLubyte* vendor = glGetString(GL_VENDOR);
+        const GLubyte* glVersion = glGetString(GL_VERSION);
+        const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+        GLint major;
+        GLint minor;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+
         std::cout << "Debug Context Created\n";
+        std::cout << "GL Renderer:          " << renderer << '\n';
+        std::cout << "GL Vendor:            " << vendor << '\n';
+        std::cout << "GL Version (string):  " << glVersion << '\n';
+        std::cout << "GL Version (integer): " << major << '.' << minor << '\n';
+        std::cout << "GLSL Version:         " << glslVersion << '\n';
+
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(DebugMessageCallback, nullptr);
@@ -86,7 +103,7 @@ Dazzle::RenderSystem::GL::VAO::VAO(VAO&& other) noexcept : mHandle(other.mHandle
 Dazzle::RenderSystem::GL::VAO::~VAO()
 {
     if (this->IsValid())
-        glDeleteShader(mHandle);
+        glDeleteVertexArrays(1, &mHandle);
 }
 
 Dazzle::RenderSystem::GL::VAO& Dazzle::RenderSystem::GL::VAO::operator=(const VAO& other)
@@ -112,48 +129,44 @@ bool Dazzle::RenderSystem::GL::VAO::IsValid() const
     return mHandle > 0;
 }
 
-Dazzle::RenderSystem::GL::ShaderId::ShaderId() : mHandle(0) {}
-Dazzle::RenderSystem::GL::ShaderId::ShaderId(const ShaderId& other) : mHandle(other.mHandle) {}
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject() : mHandle(0) {}
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(const ShaderObject& other) : mHandle(other.mHandle) {}
 
-Dazzle::RenderSystem::GL::ShaderId::ShaderId(ShaderId&& other) noexcept : mHandle(other.mHandle) 
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(ShaderObject&& other) noexcept : mHandle(other.mHandle) 
 {
     other.mHandle = 0;
 }
 
-Dazzle::RenderSystem::GL::ShaderId::~ShaderId()
+Dazzle::RenderSystem::GL::ShaderObject::~ShaderObject()
 {
     if (this->IsValid())
         glDeleteShader(mHandle);
 }
 
-Dazzle::RenderSystem::GL::ShaderId& Dazzle::RenderSystem::GL::ShaderId::operator=(const ShaderId& other)
+Dazzle::RenderSystem::GL::ShaderObject& Dazzle::RenderSystem::GL::ShaderObject::operator=(const ShaderObject& other)
 {
     this->mHandle = other.mHandle;
     return *this;
 }
 
-Dazzle::RenderSystem::GL::ShaderId& Dazzle::RenderSystem::GL::ShaderId::operator=(ShaderId&& other) noexcept
+Dazzle::RenderSystem::GL::ShaderObject& Dazzle::RenderSystem::GL::ShaderObject::operator=(ShaderObject&& other) noexcept
 {
     this->mHandle = other.mHandle;
     other.mHandle = 0;
     return *this;
 }
 
-GLuint Dazzle::RenderSystem::GL::ShaderId::GetHandle() const
+GLuint Dazzle::RenderSystem::GL::ShaderObject::GetHandle() const
 {
     return mHandle;
 }
 
-bool Dazzle::RenderSystem::GL::ShaderId::IsValid() const
+bool Dazzle::RenderSystem::GL::ShaderObject::IsValid() const
 {
     return mHandle > 0;
 }
 
-Dazzle::RenderSystem::GL::ShaderBuilder::ShaderBuilder() {}
-
-Dazzle::RenderSystem::GL::ShaderBuilder::~ShaderBuilder() {}
-
-void Dazzle::RenderSystem::GL::ShaderBuilder::Create(const GLenum& type, const std::string& source, ShaderId& res)
+void Dazzle::RenderSystem::GL::ShaderBuilder::Create(const GLenum& type, const std::string& source, ShaderObject& res)
 {
     switch (type)
     {
@@ -190,53 +203,49 @@ void Dazzle::RenderSystem::GL::ShaderBuilder::Create(const GLenum& type, const s
 }
 
 
-Dazzle::RenderSystem::GL::ProgramId::ProgramId() : mHandle(0) {}
-Dazzle::RenderSystem::GL::ProgramId::ProgramId(const ProgramId& other) : mHandle(other.mHandle) {}
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject() : mHandle(0) {}
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(const ProgramObject& other) : mHandle(other.mHandle) {}
 
-Dazzle::RenderSystem::GL::ProgramId::ProgramId(ProgramId&& other) noexcept : mHandle(other.mHandle)
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(ProgramObject&& other) noexcept : mHandle(other.mHandle)
 {
     other.mHandle = 0;
 }
 
-Dazzle::RenderSystem::GL::ProgramId::~ProgramId()
+Dazzle::RenderSystem::GL::ProgramObject::~ProgramObject()
 {
     if (this->IsValid())
-        glDeleteShader(mHandle);
+        glDeleteProgram(mHandle);
 }
 
-Dazzle::RenderSystem::GL::ProgramId& Dazzle::RenderSystem::GL::ProgramId::operator=(const ProgramId& other)
+Dazzle::RenderSystem::GL::ProgramObject& Dazzle::RenderSystem::GL::ProgramObject::operator=(const ProgramObject& other)
 {
     this->mHandle = other.mHandle;
     return *this;
 }
 
-Dazzle::RenderSystem::GL::ProgramId& Dazzle::RenderSystem::GL::ProgramId::operator=(ProgramId&& other) noexcept
+Dazzle::RenderSystem::GL::ProgramObject& Dazzle::RenderSystem::GL::ProgramObject::operator=(ProgramObject&& other) noexcept
 {
     this->mHandle = other.mHandle;
     other.mHandle = 0;
     return *this;
 }
 
-GLuint Dazzle::RenderSystem::GL::ProgramId::GetHandle() const
+GLuint Dazzle::RenderSystem::GL::ProgramObject::GetHandle() const
 {
     return mHandle;
 }
 
-bool Dazzle::RenderSystem::GL::ProgramId::IsValid() const
+bool Dazzle::RenderSystem::GL::ProgramObject::IsValid() const
 {
     return mHandle > 0;
 }
 
-Dazzle::RenderSystem::GL::ProgramBuilder::ProgramBuilder() {}
-
-Dazzle::RenderSystem::GL::ProgramBuilder::~ProgramBuilder() {}
-
-void Dazzle::RenderSystem::GL::ProgramBuilder::Create(ProgramId& program)
+void Dazzle::RenderSystem::GL::ProgramBuilder::Create(ProgramObject& program)
 {
     program.mHandle = glCreateProgram();
 }
 
-void Dazzle::RenderSystem::GL::ProgramBuilder::AttachShader(const ShaderId& shader, const ProgramId& program)
+void Dazzle::RenderSystem::GL::ProgramBuilder::AttachShader(const ShaderObject& shader, const ProgramObject& program)
 {
     if (glIsShader(shader.GetHandle()) != GL_TRUE)
     {
@@ -247,7 +256,7 @@ void Dazzle::RenderSystem::GL::ProgramBuilder::AttachShader(const ShaderId& shad
     glAttachShader(program.GetHandle(), shader.GetHandle());
 }
 
-void Dazzle::RenderSystem::GL::ProgramBuilder::Link(const ProgramId& program)
+void Dazzle::RenderSystem::GL::ProgramBuilder::Link(const ProgramObject& program)
 {
     glLinkProgram(program.GetHandle());
 
@@ -260,5 +269,21 @@ void Dazzle::RenderSystem::GL::ProgramBuilder::Link(const ProgramId& program)
         std::string log(logLength, '\0');
         glGetProgramInfoLog(program.GetHandle(), logLength, &logLength, &log[0]);
         std::cerr << "Program linkage failed:\n" << log << '\n';
+    }
+
+    GLint nAttachedShaders;     // Number of attached shaders.
+    GLint cAttachedShaders;     // Counter of retrieved attached shaders.
+    glGetProgramiv(program.GetHandle(), GL_ATTACHED_SHADERS, &nAttachedShaders);
+    std::vector<GLuint> attachedShaders(nAttachedShaders);
+    glGetAttachedShaders(program.GetHandle(), nAttachedShaders, &cAttachedShaders, attachedShaders.data());
+
+    // Counters of attached shaders must be equal.
+    assert(nAttachedShaders == cAttachedShaders);
+
+    // Detach all attached shaders to this already linked program.
+    for (const auto shaderHandle : attachedShaders)
+    {
+        if (shaderHandle > 0)
+            glDetachShader(program.GetHandle(), shaderHandle);
     }
 }

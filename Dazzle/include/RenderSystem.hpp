@@ -40,58 +40,52 @@ namespace Dazzle
                 GLuint mHandle;
             };
 
-            class ShaderId
+            class ShaderObject
             {
             public:
-                ShaderId();
-                ShaderId(const ShaderId& other);
-                ShaderId(ShaderId&& other) noexcept;
-                ~ShaderId();
+                ShaderObject();
+                ShaderObject(const ShaderObject& other);
+                ShaderObject(ShaderObject&& other) noexcept;
+                ~ShaderObject();
 
-                ShaderId& operator=(const ShaderId& other);
-                ShaderId& operator=(ShaderId&& other) noexcept;
+                ShaderObject& operator=(const ShaderObject& other);
+                ShaderObject& operator=(ShaderObject&& other) noexcept;
 
                 GLuint GetHandle() const;
                 bool IsValid() const;
             private:
-                friend class ShaderBuilder;
+                friend struct ShaderBuilder;
                 GLuint mHandle;
             };
 
-            class ShaderBuilder
+            struct ShaderBuilder
             {
-            public:
-                ShaderBuilder();
-                ~ShaderBuilder();
-                void Create(const GLenum& type, const std::string& source, ShaderId& res);
+                static void Create(const GLenum& type, const std::string& source, ShaderObject& res);
             };
 
-            class ProgramId
+            class ProgramObject
             {
             public:
-                ProgramId();
-                ProgramId(const ProgramId& other);
-                ProgramId(ProgramId&& other) noexcept;
-                ~ProgramId();
+                ProgramObject();
+                ProgramObject(const ProgramObject& other);
+                ProgramObject(ProgramObject&& other) noexcept;
+                ~ProgramObject();
 
-                ProgramId& operator=(const ProgramId& program);
-                ProgramId& operator=(ProgramId&& program) noexcept;
+                ProgramObject& operator=(const ProgramObject& program);
+                ProgramObject& operator=(ProgramObject&& program) noexcept;
 
                 GLuint GetHandle() const;
                 bool IsValid() const;
             private:
-                friend class ProgramBuilder;
+                friend struct ProgramBuilder;
                 GLuint mHandle;
             };
 
-            class ProgramBuilder
+            struct ProgramBuilder
             {
-            public:
-                ProgramBuilder();
-                ~ProgramBuilder();
-                void Create(ProgramId& program);
-                void AttachShader(const ShaderId& shader, const ProgramId& program);
-                void Link(const ProgramId& program);
+                static void Create(ProgramObject& program);
+                static void AttachShader(const ShaderObject& shader, const ProgramObject& program);
+                static void Link(const ProgramObject& program);
             };
         }
     }

@@ -76,14 +76,14 @@ namespace Dazzle
     class ShaderManager
     {
     public:
-        static void UseShader(const ShaderObject* const shader);
+        static void UseShader(const ShadingEffect* const shader);
 
-        static ShaderObject* GetSimpleShader();
-        // static ShaderObject* GetStandardShader();
+        static ShadingEffect* GetSimpleShader();
+        // static ShadingEffect* GetStandardShader();
         // ...
 
     private:
-        static Singleton<ShaderObject, SimpleShader> mSimpleShader;
+        static Singleton<ShadingEffect, SimpleShader> mSimpleShader;
     };
 }
 
