@@ -84,8 +84,8 @@ namespace Dazzle
                 void Link() const;
                 void AttachShader(const ShaderObject& shader) const;
                 void DetachAllShaders() const;
-                void LoadBinaryFrom(const std::string& filePath, GLenum format) const;
-                void LoadSPIRVFrom(const std::string& filePath) const;
+                void LoadBinary(const std::vector<char> binary, GLenum format) const;
+                void LoadSPIRV() const;
 
                 GLint GetLinkageStatus() const;
                 std::vector<GLuint> GetAttachedShaders() const;

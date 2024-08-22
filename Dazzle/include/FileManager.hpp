@@ -2,6 +2,7 @@
 #define _FILE_MANAGER_HPP_
 
 #include <string>
+#include <vector>
 
 #include <DazzleEngine.hpp>
 
@@ -9,9 +10,10 @@ namespace Dazzle
 {
     struct FileManager
     {
-        static std::string ReadFileFrom(const std::string& path);
-        static void WriteFileTo(const std::string& path, const std::string& data);
-        static void WriteBinaryTo(const std::string& path, const char* data, const size_t length);
+        static std::string ReadFile(const std::string& path);
+        static std::vector<char> ReadBinary(const std::string& path);
+        static void WriteFile(const std::string& path, const std::string& data);
+        static void WriteBinary(const std::string& path, const char* data, const size_t length);
     };
 }
 

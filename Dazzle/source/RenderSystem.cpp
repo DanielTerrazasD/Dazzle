@@ -253,19 +253,28 @@ void Dazzle::RenderSystem::GL::ShaderObject::ValidateType(const GLenum& type)
     }
 }
 
-Dazzle::RenderSystem::GL::ProgramObject::ProgramObject() : mHandle(0)
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject()
 {
     mHandle = glCreateProgram();
+    mBinaryFormat = 0;
+    mBinary = std::vector<GLubyte>();
 }
 
-Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(const ProgramObject& other) : mHandle(other.mHandle)
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(const ProgramObject& other)
 {
-
+    mHandle = other.mHandle;
+    mBinaryFormat = other.mBinaryFormat;
+    mBinary = other.mBinary;
 }
 
-Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(ProgramObject&& other) noexcept : mHandle(other.mHandle)
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(ProgramObject&& other) noexcept
 {
+    mHandle = other.mHandle;
+    mBinaryFormat = other.mBinaryFormat;
+    mBinary = std::move(other.mBinary);
+
     other.mHandle = 0;
+    other.mBinaryFormat = 0;
 }
 
 Dazzle::RenderSystem::GL::ProgramObject::~ProgramObject()
@@ -277,13 +286,19 @@ Dazzle::RenderSystem::GL::ProgramObject::~ProgramObject()
 Dazzle::RenderSystem::GL::ProgramObject& Dazzle::RenderSystem::GL::ProgramObject::operator=(const ProgramObject& other)
 {
     this->mHandle = other.mHandle;
+    this->mBinaryFormat = other.mBinaryFormat;
+    this->mBinary = other.mBinary;
     return *this;
 }
 
 Dazzle::RenderSystem::GL::ProgramObject& Dazzle::RenderSystem::GL::ProgramObject::operator=(ProgramObject&& other) noexcept
 {
     this->mHandle = other.mHandle;
+    this->mBinaryFormat = other.mBinaryFormat;
+    this->mBinary = std::move(other.mBinary);
+
     other.mHandle = 0;
+    other.mBinaryFormat = 0;
     return *this;
 }
 
@@ -324,12 +339,19 @@ void Dazzle::RenderSystem::GL::ProgramObject::DetachAllShaders() const
     }
 }
 
-void Dazzle::RenderSystem::GL::ProgramObject::LoadBinaryFrom(const std::string& filePath, GLenum format) const
+void Dazzle::RenderSystem::GL::ProgramObject::LoadBinary(const std::vector<char> binary, GLenum format) const
 {
+    const char* data = binary.data();
+    GLsizei length = static_cast<GLsizei>(binary.size());
 
+    glProgramBinary(mHandle, format, data, length);
+    if (GetLinkageStatus() != GL_TRUE)
+    {
+        std::cerr << GetInfoLog();
+    }
 }
 
-void Dazzle::RenderSystem::GL::ProgramObject::LoadSPIRVFrom(const std::string& filePath) const
+void Dazzle::RenderSystem::GL::ProgramObject::LoadSPIRV() const
 {
 
 }
@@ -404,7 +426,7 @@ void Dazzle::RenderSystem::GL::ProgramObject::GenerateBinary()
 
     GLint length = 0;
     glGetProgramiv(mHandle, GL_PROGRAM_BINARY_LENGTH, &length);
-    std::vector<GLubyte> mBinary(length);
+    mBinary.resize(length);
     glGetProgramBinary(mHandle, length, nullptr, &mBinaryFormat, mBinary.data());
 }
 

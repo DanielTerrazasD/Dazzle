@@ -8,8 +8,8 @@ Dazzle::ShadingEffect::~ShadingEffect()
 
 Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramObject()), mVAO(RenderSystem::GL::VAO())
 {
-    auto vssc = FileManager::ReadFileFrom("Assets\\Shaders\\SimpleShader.vs.glsl"); // Vertex Shader Source Code
-    auto fssc = FileManager::ReadFileFrom("Assets\\Shaders\\SimpleShader.fs.glsl"); // Fragment Shader Source Code
+    auto vssc = FileManager::ReadFile("Assets\\Shaders\\SimpleShader.vs.glsl"); // Vertex Shader Source Code
+    auto fssc = FileManager::ReadFile("Assets\\Shaders\\SimpleShader.fs.glsl"); // Fragment Shader Source Code
 
     RenderSystem::GL::ShaderObject vso; // Vertex Shader Object
     RenderSystem::GL::ShaderObject fso; // Fragment Shader Object
@@ -19,6 +19,13 @@ Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramObject(
 
     RenderSystem::GL::ProgramObject program;
     RenderSystem::GL::ProgramBuilder::Build(program, {&vso, &fso});
+
+    // Save the program binary
+    // auto binary = program.GetBinary();
+    // auto format = program.GetBinaryFormat();
+    // char* data = reinterpret_cast<char*>(binary.data());
+    // size_t length = binary.size();
+    // FileManager::WriteBinary("Assets\\Shaders\\SimpleShader.bin", data, length);
 
     mProgram = std::move(program);
 }

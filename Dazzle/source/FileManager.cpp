@@ -3,49 +3,52 @@
 #include <sstream>
 
 #include "FileManager.hpp"
+#include "Utilities.hpp"
 
-std::string Dazzle::FileManager::ReadFileFrom(const std::string& path)
+std::string Dazzle::FileManager::ReadFile(const std::string& path)
 {
-    std::fstream file(path, std::ios::in);
+    std::ifstream inputStream(path);
 
-    if (!file.is_open())
-    {
-        std::ostringstream message;
-        message << "Could not open file:\n" << path << '\n';
-        throw std::runtime_error(message.str());
-    }
+    if (inputStream.fail())
+        assert_with_message(Utilities::kAlwaysFail, "Unable to open file: " + path);
 
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
+    std::istreambuf_iterator<char> startIt(inputStream), endIt;
+    std::string buffer(startIt, endIt);
+    inputStream.close();
+    return buffer;
 }
 
-void Dazzle::FileManager::WriteFileTo(const std::string& path, const std::string& data)
+std::vector<char> Dazzle::FileManager::ReadBinary(const std::string& path)
 {
-    std::ofstream file(path.c_str());
+    std::ifstream inputStream(path, std::ios::binary);
 
-    if (!file.is_open())
-    {
-        std::ostringstream message;
-        message << "Could not open file:\n" << path << '\n';
-        throw std::runtime_error(message.str());
-    }
+    if (inputStream.fail())
+        assert_with_message(Utilities::kAlwaysFail, "Unable to open file: " + path);
 
-    file.write(data.c_str(), data.size());
-    file.close();
+    std::istreambuf_iterator<char> startIt(inputStream), endIt;
+    std::vector<char> buffer(startIt, endIt);
+    inputStream.close();
+    return buffer;
 }
 
-void Dazzle::FileManager::WriteBinaryTo(const std::string& path, const char* data, const size_t length)
+void Dazzle::FileManager::WriteFile(const std::string& path, const std::string& data)
 {
-    std::ofstream file(path.c_str(), std::ios::binary | std::ios::trunc);
+    std::ofstream outputStream(path);
 
-    if (!file.is_open())
-    {
-        std::ostringstream message;
-        message << "Could not open file:\n" << path << '\n';
-        throw std::runtime_error(message.str());
-    }
+    if (outputStream.fail())
+        assert_with_message(Utilities::kAlwaysFail, "Unable to open file: " + path);
 
-    file.write(data, length);
-    file.close();
+    outputStream.write(data.c_str(), data.size());
+    outputStream.close();
+}
+
+void Dazzle::FileManager::WriteBinary(const std::string& path, const char* data, const size_t length)
+{
+    std::ofstream outputStream(path, std::ios::binary | std::ios::trunc);
+
+    if (outputStream.fail())
+        assert_with_message(Utilities::kAlwaysFail, "Unable to open file: " + path);
+
+    outputStream.write(data, length);
+    outputStream.close();
 }
