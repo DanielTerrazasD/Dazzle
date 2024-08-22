@@ -63,6 +63,8 @@ namespace Dazzle
                 GLuint GetHandle() const;
                 bool IsValid() const;
             private:
+                void ValidateType(const GLenum& type);
+
                 GLuint mHandle;
                 GLenum mType;
                 std::string mSourceCode;

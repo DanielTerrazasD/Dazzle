@@ -1,9 +1,9 @@
-#include <cassert>
 #include <filesystem>
 #include <iostream>
 
 #include "FileManager.hpp"
 #include "RenderSystem.hpp"
+#include "Utilities.hpp"
 
 void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
 {
@@ -89,8 +89,7 @@ void Dazzle::RenderSystem::GL::DebugMessageCallback(  GLenum source,
     }
 
     std::cout << "\nMessage:\n" << message << "\n";
-    // Optionally, throw an exception or assert:
-    throw std::runtime_error(message);
+    assert_with_message(Utilities::kAlwaysFail, message);
 }
 
 
@@ -145,21 +144,7 @@ Dazzle::RenderSystem::GL::ShaderObject::ShaderObject() : mHandle(0), mSourceCode
 
 Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(const GLenum& type, const std::string& source) : ShaderObject()
 {
-    switch (type)
-    {
-    case GL_VERTEX_SHADER:
-    case GL_TESS_CONTROL_SHADER:
-    case GL_TESS_EVALUATION_SHADER:
-    case GL_GEOMETRY_SHADER:
-    case GL_FRAGMENT_SHADER:
-    case GL_COMPUTE_SHADER:
-        break;
-
-    default:
-        // Error: GL_INVALID_ENUM
-        throw std::runtime_error("Invalid Shader Type");
-    }
-
+    ValidateType(type);
     mHandle = glCreateShader(type);
     mSourceCode = source;
 }
@@ -216,6 +201,7 @@ void Dazzle::RenderSystem::GL::ShaderObject::Initialize()
 
 void Dazzle::RenderSystem::GL::ShaderObject::SetType(const GLenum &type)
 {
+    ValidateType(type);
     mType = type;
 }
 
@@ -248,6 +234,23 @@ GLuint Dazzle::RenderSystem::GL::ShaderObject::GetHandle() const
 bool Dazzle::RenderSystem::GL::ShaderObject::IsValid() const
 {
     return mHandle > 0;
+}
+
+void Dazzle::RenderSystem::GL::ShaderObject::ValidateType(const GLenum& type)
+{
+    switch (type)
+    {
+    case GL_VERTEX_SHADER:
+    case GL_TESS_CONTROL_SHADER:
+    case GL_TESS_EVALUATION_SHADER:
+    case GL_GEOMETRY_SHADER:
+    case GL_FRAGMENT_SHADER:
+    case GL_COMPUTE_SHADER:
+        break;
+
+    default:
+        assert_with_message(Utilities::kAlwaysFail, "Invalid Shader Type.");
+    }
 }
 
 Dazzle::RenderSystem::GL::ProgramObject::ProgramObject() : mHandle(0)
@@ -426,5 +429,5 @@ void Dazzle::RenderSystem::GL::ProgramBuilder::Build(ProgramObject& program, con
         std::cerr << program.GetInfoLog();
 
     program.DetachAllShaders();
-    assert(program.GetAttachedShaders().size() == 0);
+    assert_with_message(program.GetAttachedShaders().size() == 0, "OpenGL linked program still contains attached shaders.");
 }
