@@ -23,6 +23,7 @@ namespace Dazzle
                                 GLsizei length,
                                 const GLchar *message,
                                 const void *userParam);
+
             class VAO
             {
             public:
@@ -44,6 +45,7 @@ namespace Dazzle
             {
             public:
                 ShaderObject();
+                ShaderObject(const GLenum& type, const std::string& source);
                 ShaderObject(const ShaderObject& other);
                 ShaderObject(ShaderObject&& other) noexcept;
                 ~ShaderObject();
@@ -51,16 +53,19 @@ namespace Dazzle
                 ShaderObject& operator=(const ShaderObject& other);
                 ShaderObject& operator=(ShaderObject&& other) noexcept;
 
+                void Compile() const;
+                void Initialize();
+
+                void SetType(const GLenum& type);
+                void SetSourceCode(const std::string& source);
+                GLint GetCompilationStatus() const;
+                std::string GetInfoLog() const;
                 GLuint GetHandle() const;
                 bool IsValid() const;
             private:
-                friend struct ShaderBuilder;
                 GLuint mHandle;
-            };
-
-            struct ShaderBuilder
-            {
-                static void Create(const GLenum& type, const std::string& source, ShaderObject& res);
+                GLenum mType;
+                std::string mSourceCode;
             };
 
             class ProgramObject
@@ -74,18 +79,35 @@ namespace Dazzle
                 ProgramObject& operator=(const ProgramObject& program);
                 ProgramObject& operator=(ProgramObject&& program) noexcept;
 
+                void Link() const;
+                void AttachShader(const ShaderObject& shader) const;
+                void DetachAllShaders() const;
+                void LoadBinaryFrom(const std::string& filePath, GLenum format) const;
+                void LoadSPIRVFrom(const std::string& filePath) const;
+
+                GLint GetLinkageStatus() const;
+                std::vector<GLuint> GetAttachedShaders() const;
+                std::vector<GLubyte> GetBinary();
+                GLenum GetBinaryFormat();
+                std::string GetInfoLog() const;
                 GLuint GetHandle() const;
                 bool IsValid() const;
             private:
-                friend struct ProgramBuilder;
+                void GenerateBinary();
+
                 GLuint mHandle;
+                std::vector<GLubyte> mBinary;
+                GLenum mBinaryFormat;
             };
 
-            struct ProgramBuilder
+            namespace ShaderBuilder
             {
-                static void Create(ProgramObject& program);
-                static void AttachShader(const ShaderObject& shader, const ProgramObject& program);
-                static void Link(const ProgramObject& program);
+                void Build(ShaderObject& shader, const GLenum& type, const std::string& source);
+            };
+
+            namespace ProgramBuilder
+            {
+                void Build(ProgramObject& program, const std::vector<ShaderObject*>& shaders);
             };
         }
     }

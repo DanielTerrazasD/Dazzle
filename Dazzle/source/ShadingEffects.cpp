@@ -8,22 +8,17 @@ Dazzle::ShadingEffect::~ShadingEffect()
 
 Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramObject()), mVAO(RenderSystem::GL::VAO())
 {
-    auto vs = FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.vs.glsl");
-    auto fs = FileLoader::ReadFile("Assets\\Shaders\\SimpleShader.fs.glsl");
+    auto vssc = FileManager::ReadFileFrom("Assets\\Shaders\\SimpleShader.vs.glsl"); // Vertex Shader Source Code
+    auto fssc = FileManager::ReadFileFrom("Assets\\Shaders\\SimpleShader.fs.glsl"); // Fragment Shader Source Code
 
-    RenderSystem::GL::ShaderBuilder shaderBuilder;
-    RenderSystem::GL::ProgramBuilder programBuilder;
+    RenderSystem::GL::ShaderObject vso; // Vertex Shader Object
+    RenderSystem::GL::ShaderObject fso; // Fragment Shader Object
 
-    RenderSystem::GL::ShaderObject vertexShader;
-    RenderSystem::GL::ShaderObject fragmentShader;
-    shaderBuilder.Create(GL_VERTEX_SHADER, vs, vertexShader);
-    shaderBuilder.Create(GL_FRAGMENT_SHADER, fs, fragmentShader);
+    RenderSystem::GL::ShaderBuilder::Build(vso, GL_VERTEX_SHADER, vssc);
+    RenderSystem::GL::ShaderBuilder::Build(fso, GL_FRAGMENT_SHADER, fssc);
 
     RenderSystem::GL::ProgramObject program;
-    programBuilder.Create(program);
-    programBuilder.AttachShader(vertexShader, program);
-    programBuilder.AttachShader(fragmentShader, program);
-    programBuilder.Link(program);
+    RenderSystem::GL::ProgramBuilder::Build(program, {&vso, &fso});
 
     mProgram = std::move(program);
 }

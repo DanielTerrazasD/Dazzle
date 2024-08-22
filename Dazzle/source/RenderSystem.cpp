@@ -1,6 +1,8 @@
 #include <cassert>
+#include <filesystem>
 #include <iostream>
 
+#include "FileManager.hpp"
 #include "RenderSystem.hpp"
 
 void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
@@ -25,7 +27,7 @@ void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
         std::cout << "GL Vendor:            " << vendor << '\n';
         std::cout << "GL Version (string):  " << glVersion << '\n';
         std::cout << "GL Version (integer): " << major << '.' << minor << '\n';
-        std::cout << "GLSL Version:         " << glslVersion << '\n';
+        std::cout << "GLSL Version:         " << glslVersion << "\n\n";
 
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -92,8 +94,15 @@ void Dazzle::RenderSystem::GL::DebugMessageCallback(  GLenum source,
 }
 
 
-Dazzle::RenderSystem::GL::VAO::VAO() : mHandle(0) {}
-Dazzle::RenderSystem::GL::VAO::VAO(const VAO& other) : mHandle(other.mHandle) {}
+Dazzle::RenderSystem::GL::VAO::VAO() : mHandle(0)
+{
+
+}
+
+Dazzle::RenderSystem::GL::VAO::VAO(const VAO& other) : mHandle(other.mHandle)
+{
+
+}
 
 Dazzle::RenderSystem::GL::VAO::VAO(VAO&& other) noexcept : mHandle(other.mHandle) 
 {
@@ -102,7 +111,7 @@ Dazzle::RenderSystem::GL::VAO::VAO(VAO&& other) noexcept : mHandle(other.mHandle
 
 Dazzle::RenderSystem::GL::VAO::~VAO()
 {
-    if (this->IsValid())
+    if (IsValid())
         glDeleteVertexArrays(1, &mHandle);
 }
 
@@ -129,17 +138,46 @@ bool Dazzle::RenderSystem::GL::VAO::IsValid() const
     return mHandle > 0;
 }
 
-Dazzle::RenderSystem::GL::ShaderObject::ShaderObject() : mHandle(0) {}
-Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(const ShaderObject& other) : mHandle(other.mHandle) {}
-
-Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(ShaderObject&& other) noexcept : mHandle(other.mHandle) 
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject() : mHandle(0), mSourceCode(std::string()), mType(GLenum())
 {
+
+}
+
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(const GLenum& type, const std::string& source) : ShaderObject()
+{
+    switch (type)
+    {
+    case GL_VERTEX_SHADER:
+    case GL_TESS_CONTROL_SHADER:
+    case GL_TESS_EVALUATION_SHADER:
+    case GL_GEOMETRY_SHADER:
+    case GL_FRAGMENT_SHADER:
+    case GL_COMPUTE_SHADER:
+        break;
+
+    default:
+        // Error: GL_INVALID_ENUM
+        throw std::runtime_error("Invalid Shader Type");
+    }
+
+    mHandle = glCreateShader(type);
+    mSourceCode = source;
+}
+
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(const ShaderObject& other) : ShaderObject()
+{
+    mHandle = other.mHandle;
+}
+
+Dazzle::RenderSystem::GL::ShaderObject::ShaderObject(ShaderObject&& other) noexcept : ShaderObject()
+{
+    mHandle = other.mHandle;
     other.mHandle = 0;
 }
 
 Dazzle::RenderSystem::GL::ShaderObject::~ShaderObject()
 {
-    if (this->IsValid())
+    if (IsValid())
         glDeleteShader(mHandle);
 }
 
@@ -156,6 +194,52 @@ Dazzle::RenderSystem::GL::ShaderObject& Dazzle::RenderSystem::GL::ShaderObject::
     return *this;
 }
 
+void Dazzle::RenderSystem::GL::ShaderObject::Compile() const
+{
+    if (mSourceCode.empty())
+    {
+        std::cerr << "Unable to Compile Shader: GLSL source code not provided.\n";
+        return;
+    }
+
+    const GLchar* sourcePtr = mSourceCode.c_str();
+    GLint sourceLength = static_cast<GLint>(mSourceCode.size());
+    glShaderSource(mHandle, 1, &sourcePtr, &sourceLength);
+    glCompileShader(mHandle);
+}
+
+void Dazzle::RenderSystem::GL::ShaderObject::Initialize()
+{
+    if (!IsValid() && mType != 0)
+        mHandle = glCreateShader(mType);
+}
+
+void Dazzle::RenderSystem::GL::ShaderObject::SetType(const GLenum &type)
+{
+    mType = type;
+}
+
+void Dazzle::RenderSystem::GL::ShaderObject::SetSourceCode(const std::string &source)
+{
+    mSourceCode = source;
+}
+
+GLint Dazzle::RenderSystem::GL::ShaderObject::GetCompilationStatus() const
+{
+    GLint compileStatus;
+    glGetShaderiv(mHandle, GL_COMPILE_STATUS, &compileStatus);
+    return compileStatus;
+}
+
+std::string Dazzle::RenderSystem::GL::ShaderObject::GetInfoLog() const
+{
+    GLint logLength;
+    glGetShaderiv(mHandle, GL_INFO_LOG_LENGTH, &logLength);
+    std::string log(logLength, '\0');
+    glGetShaderInfoLog(mHandle, logLength, nullptr, &log[0]);
+    return log;
+}
+
 GLuint Dazzle::RenderSystem::GL::ShaderObject::GetHandle() const
 {
     return mHandle;
@@ -166,45 +250,15 @@ bool Dazzle::RenderSystem::GL::ShaderObject::IsValid() const
     return mHandle > 0;
 }
 
-void Dazzle::RenderSystem::GL::ShaderBuilder::Create(const GLenum& type, const std::string& source, ShaderObject& res)
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject() : mHandle(0)
 {
-    switch (type)
-    {
-    case GL_VERTEX_SHADER:
-    case GL_TESS_CONTROL_SHADER:
-    case GL_TESS_EVALUATION_SHADER:
-    case GL_GEOMETRY_SHADER:
-    case GL_FRAGMENT_SHADER:
-    case GL_COMPUTE_SHADER:
-        break;
-
-    default:
-        // Error: GL_INVALID_ENUM
-        res.mHandle = 0;
-        return;
-    }
-
-    res.mHandle = glCreateShader(type);
-    const GLchar* sourcePtr = source.c_str();
-    GLint sourceLength = static_cast<GLint>(source.size());
-    glShaderSource(res.mHandle, 1, &sourcePtr, &sourceLength);
-    glCompileShader(res.mHandle);
-
-    GLint compileStatus;
-    glGetShaderiv(res.mHandle, GL_COMPILE_STATUS, &compileStatus);
-    if (compileStatus != GL_TRUE)
-    {
-        GLint logLength;
-        glGetShaderiv(res.mHandle, GL_INFO_LOG_LENGTH, &logLength);
-        std::string log(logLength, '\0');
-        glGetShaderInfoLog(res.mHandle, logLength, &logLength, &log[0]);
-        std::cerr << "Shader compilation failed:\n" << log << '\n';
-    }
+    mHandle = glCreateProgram();
 }
 
+Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(const ProgramObject& other) : mHandle(other.mHandle)
+{
 
-Dazzle::RenderSystem::GL::ProgramObject::ProgramObject() : mHandle(0) {}
-Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(const ProgramObject& other) : mHandle(other.mHandle) {}
+}
 
 Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(ProgramObject&& other) noexcept : mHandle(other.mHandle)
 {
@@ -213,7 +267,7 @@ Dazzle::RenderSystem::GL::ProgramObject::ProgramObject(ProgramObject&& other) no
 
 Dazzle::RenderSystem::GL::ProgramObject::~ProgramObject()
 {
-    if (this->IsValid())
+    if (IsValid())
         glDeleteProgram(mHandle);
 }
 
@@ -230,6 +284,94 @@ Dazzle::RenderSystem::GL::ProgramObject& Dazzle::RenderSystem::GL::ProgramObject
     return *this;
 }
 
+void Dazzle::RenderSystem::GL::ProgramObject::Link() const
+{
+    if (!IsValid())
+    {
+        std::cerr << "Unable to Link Program: Invalid Program Object.\n";
+        return;
+    }
+
+    glLinkProgram(mHandle);
+}
+
+void Dazzle::RenderSystem::GL::ProgramObject::AttachShader(const ShaderObject& shader) const
+{
+    if (!shader.IsValid() || glIsShader(shader.GetHandle()) != GL_TRUE)
+    {
+        std::cerr << "Unable to attach Shader to Program: Invalid Shader Object.\n";
+        return;
+    }
+
+    if (!IsValid())
+    {
+        std::cerr << "Unable to attach Shader to Program: Invalid Program Object.\n";
+        return;
+    }
+
+    glAttachShader(mHandle, shader.GetHandle());
+}
+
+void Dazzle::RenderSystem::GL::ProgramObject::DetachAllShaders() const
+{
+    auto attachedShaders = GetAttachedShaders();
+    for (const auto& shaderHandle : attachedShaders)
+    {
+        glDetachShader(mHandle, shaderHandle);
+    }
+}
+
+void Dazzle::RenderSystem::GL::ProgramObject::LoadBinaryFrom(const std::string& filePath, GLenum format) const
+{
+
+}
+
+void Dazzle::RenderSystem::GL::ProgramObject::LoadSPIRVFrom(const std::string& filePath) const
+{
+
+}
+
+GLint Dazzle::RenderSystem::GL::ProgramObject::GetLinkageStatus() const
+{
+    GLint linkageStatus;
+    glGetProgramiv(mHandle, GL_LINK_STATUS, &linkageStatus);
+    return linkageStatus;
+}
+
+std::vector<GLuint> Dazzle::RenderSystem::GL::ProgramObject::GetAttachedShaders() const
+{
+    GLint numShaders = 0;
+    glGetProgramiv(mHandle, GL_ATTACHED_SHADERS, &numShaders);
+    std::vector<GLuint> attachedShaders(numShaders);
+    glGetAttachedShaders(mHandle, numShaders, nullptr, attachedShaders.data());
+    return attachedShaders;
+}
+
+std::vector<GLubyte> Dazzle::RenderSystem::GL::ProgramObject::GetBinary()
+{
+    if (mBinary.empty())
+        GenerateBinary();
+
+    return mBinary;
+}
+
+GLenum Dazzle::RenderSystem::GL::ProgramObject::GetBinaryFormat()
+{
+    if (mBinaryFormat == 0)
+        GenerateBinary();
+
+    return mBinaryFormat;
+}
+
+std::string Dazzle::RenderSystem::GL::ProgramObject::GetInfoLog() const
+{
+    GLint logLength;
+    glGetProgramiv(mHandle, GL_INFO_LOG_LENGTH, &logLength);
+    std::string log(logLength, '\0');
+    glGetProgramInfoLog(mHandle, logLength, nullptr, &log[0]);
+    return log;
+}
+
 GLuint Dazzle::RenderSystem::GL::ProgramObject::GetHandle() const
 {
     return mHandle;
@@ -240,50 +382,49 @@ bool Dazzle::RenderSystem::GL::ProgramObject::IsValid() const
     return mHandle > 0;
 }
 
-void Dazzle::RenderSystem::GL::ProgramBuilder::Create(ProgramObject& program)
+void Dazzle::RenderSystem::GL::ProgramObject::GenerateBinary()
 {
-    program.mHandle = glCreateProgram();
-}
-
-void Dazzle::RenderSystem::GL::ProgramBuilder::AttachShader(const ShaderObject& shader, const ProgramObject& program)
-{
-    if (glIsShader(shader.GetHandle()) != GL_TRUE)
+    GLint numFormats = 0;
+    glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &numFormats);
+    if (numFormats < 1)
     {
-        std::cerr << "Unable to attach Shader to Program: Invalid Shader Object\n";
+        std::cerr << "Unable to generate Program Binary: Driver does not support binary formats.\n";
         return;
     }
 
-    glAttachShader(program.GetHandle(), shader.GetHandle());
+    if (GetLinkageStatus() != GL_TRUE)
+    {
+        // GL_INVALID_OPERATION
+        std::cerr << "Unable to generate Program Binary: Program Object has not been linked.\n";
+        return;
+    }
+
+    GLint length = 0;
+    glGetProgramiv(mHandle, GL_PROGRAM_BINARY_LENGTH, &length);
+    std::vector<GLubyte> mBinary(length);
+    glGetProgramBinary(mHandle, length, nullptr, &mBinaryFormat, mBinary.data());
 }
 
-void Dazzle::RenderSystem::GL::ProgramBuilder::Link(const ProgramObject& program)
+void Dazzle::RenderSystem::GL::ShaderBuilder::Build(ShaderObject& shader, const GLenum& type, const std::string& source)
 {
-    glLinkProgram(program.GetHandle());
+    shader.SetType(type);
+    shader.SetSourceCode(source);
+    shader.Initialize();
+    shader.Compile();
+    if (shader.GetCompilationStatus() != GL_TRUE)
+        std::cerr << shader.GetInfoLog();
+}
 
-    GLint linkageStatus;
-    glGetProgramiv(program.GetHandle(), GL_LINK_STATUS, &linkageStatus);
-    if (linkageStatus != GL_TRUE)
-    {
-        GLint logLength;
-        glGetProgramiv(program.GetHandle(), GL_INFO_LOG_LENGTH, &logLength);
-        std::string log(logLength, '\0');
-        glGetProgramInfoLog(program.GetHandle(), logLength, &logLength, &log[0]);
-        std::cerr << "Program linkage failed:\n" << log << '\n';
-    }
+void Dazzle::RenderSystem::GL::ProgramBuilder::Build(ProgramObject& program, const std::vector<ShaderObject*>& shaders)
+{
+    for (const auto& shader : shaders)
+        /// TODO: Check shader compilation status before attach?
+        program.AttachShader(*shader);
 
-    GLint nAttachedShaders;     // Number of attached shaders.
-    GLint cAttachedShaders;     // Counter of retrieved attached shaders.
-    glGetProgramiv(program.GetHandle(), GL_ATTACHED_SHADERS, &nAttachedShaders);
-    std::vector<GLuint> attachedShaders(nAttachedShaders);
-    glGetAttachedShaders(program.GetHandle(), nAttachedShaders, &cAttachedShaders, attachedShaders.data());
+    program.Link();
+    if (program.GetLinkageStatus() != GL_TRUE)
+        std::cerr << program.GetInfoLog();
 
-    // Counters of attached shaders must be equal.
-    assert(nAttachedShaders == cAttachedShaders);
-
-    // Detach all attached shaders to this already linked program.
-    for (const auto shaderHandle : attachedShaders)
-    {
-        if (shaderHandle > 0)
-            glDetachShader(program.GetHandle(), shaderHandle);
-    }
+    program.DetachAllShaders();
+    assert(program.GetAttachedShaders().size() == 0);
 }

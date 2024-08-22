@@ -7,9 +7,11 @@
 
 namespace Dazzle
 {
-    struct FileLoader
+    struct FileManager
     {
-        static std::string ReadFile(const std::string& path);
+        static std::string ReadFileFrom(const std::string& path);
+        static void WriteFileTo(const std::string& path, const std::string& data);
+        static void WriteBinaryTo(const std::string& path, const char* data, const size_t length);
     };
 }
 
