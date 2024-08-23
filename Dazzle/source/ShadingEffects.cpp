@@ -1,13 +1,16 @@
 #include "FileManager.hpp"
 #include "ShadingEffects.hpp"
 
-Dazzle::ShadingEffect::~ShadingEffect()
+Dazzle::IShadingEffect::~IShadingEffect()
 {
 
 }
 
-Dazzle::SimpleShader::SimpleShader() : mProgram(RenderSystem::GL::ProgramObject()), mVAO(RenderSystem::GL::VAO())
+Dazzle::SimpleShader::SimpleShader()
 {
+    mProgram = RenderSystem::GL::ProgramObject();
+    mVAO = RenderSystem::GL::VAO();
+
     auto vssc = FileManager::ReadFile("Assets\\Shaders\\SimpleShader.vs.glsl"); // Vertex Shader Source Code
     auto fssc = FileManager::ReadFile("Assets\\Shaders\\SimpleShader.fs.glsl"); // Fragment Shader Source Code
 

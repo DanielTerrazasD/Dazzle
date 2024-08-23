@@ -2,13 +2,17 @@
 
 #include "ShaderManager.hpp"
 
-void Dazzle::ShaderManager::UseShader(const ShadingEffect* const shader)
+Dazzle::ShaderManager::ShaderManager()
 {
 
 }
 
-
-Dazzle::ShadingEffect* Dazzle::ShaderManager::GetSimpleShader()
+void Dazzle::ShaderManager::UseEffect(const IShadingEffect& shader)
 {
-    return mSimpleShader.GetInstance();
+
+}
+
+Dazzle::IShadingEffect& Dazzle::ShaderManager::GetSimpleShader()
+{
+    return Singleton<IShadingEffect, SimpleShader>::GetInstance();
 }

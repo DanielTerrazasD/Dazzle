@@ -6,19 +6,19 @@
 
 namespace Dazzle
 {
-
-    class ShadingEffect
+    class IShadingEffect
     {
     public:
-        virtual ~ShadingEffect() = 0;
         virtual void Use() const = 0;
+        virtual ~IShadingEffect() = 0;
     };
 
-    class SimpleShader : public ShadingEffect
+    class SimpleShader : public IShadingEffect
     {
     public:
         SimpleShader();
-        virtual ~SimpleShader() override;
+        virtual ~SimpleShader();
+
         virtual void Use() const override;
 
     private:
