@@ -15,13 +15,14 @@ namespace Dazzle
         Singleton(const Singleton& other) = delete;
         void operator=(const Singleton&) = delete;
 
-        static Interface* GetInstance()
+        template<typename... Args>
+        static Interface& GetInstance(Args&&... args)
         {
-            std::call_once( mOnceFlag, []()
+            std::call_once( mInitFlag, [](Args&&... args)
             {
-                mInstance.reset(new Implementation());
-            });
-            return mInstance.get();
+                mInstance.reset(new Implementation(std::forward<Args>(args)...));
+            }, std::forward<Args>(args)...);
+            return *mInstance;
         }
 
     private:
@@ -29,13 +30,13 @@ namespace Dazzle
         ~Singleton() = default;
 
         static std::unique_ptr<Interface> mInstance;
-        static std::once_flag mOnceFlag;
+        static std::once_flag mInitFlag;
     };
 
     template<typename Interface, typename Implementation>
-    std::unique_ptr<Interface> Singleton<Interface, Implementation>::mInstance;
+    std::unique_ptr<Interface> Singleton<Interface, Implementation>::mInstance = nullptr;
     template<typename Interface, typename Implementation>
-    std::once_flag Singleton<Interface, Implementation>::mOnceFlag;
+    std::once_flag Singleton<Interface, Implementation>::mInitFlag;
 }
 
 #endif // _SINGLETON_HPP_
