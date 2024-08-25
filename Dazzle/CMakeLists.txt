@@ -20,6 +20,7 @@ set(SOURCES
     source/ShaderManager.cpp
     source/ShadingEffects.cpp
     source/WindowSystem.cpp
+    ${CMAKE_SOURCE_DIR}/Assets/Objects/Procedural/Cube.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp
@@ -28,7 +29,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp
     ${CMAKE_SOURCE_DIR}/vendor/gl3w/src/gl3w.c
-)
+    )
 
 set(HEADERS
     include/DazzleEngine.hpp
@@ -38,7 +39,8 @@ set(HEADERS
     include/ShadingEffects.hpp
     include/RenderSystem.hpp
     include/WindowSystem.hpp
-)
+    ${CMAKE_SOURCE_DIR}/Assets/Objects/Procedural/Cube.hpp
+    )
 
 # Add an executable with the above sources
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
@@ -63,6 +65,7 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}/vendor/imgui/backends
         ${CMAKE_SOURCE_DIR}/vendor/gl3w/include
         ${CMAKE_SOURCE_DIR}/vendor/glm
+        ${CMAKE_SOURCE_DIR}/Assets/Objects/Procedural
 )
 
 # Add a post-build custom command to copy the Assets into the output directory.
