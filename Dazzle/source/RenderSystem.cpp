@@ -1,7 +1,6 @@
 #include <filesystem>
 #include <iostream>
 
-#include "FileManager.hpp"
 #include "RenderSystem.hpp"
 #include "Utilities.hpp"
 
