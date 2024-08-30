@@ -9,7 +9,7 @@ namespace Dazzle
     {
 
     public:
-        Cube() = default;
+        Cube() : Cube(1.0f) {}
         ~Cube() = default;
 
         Cube(float length);
@@ -18,7 +18,7 @@ namespace Dazzle
         // std::vector<float> GetTangents() const { return mTangents; }
         // std::vector<float> GetBitangents() const { return mBitangents; }
         std::vector<float> GetTextureCoordinates() const { return mTextureCoordinates; }
-        std::vector<float> GetIndices() const { return mIndices; }
+        std::vector<unsigned int> GetIndices() const { return mIndices; }
 
     private:
         std::vector<float> mVertices;
@@ -26,7 +26,7 @@ namespace Dazzle
         // std::vector<float> mTangents;
         // std::vector<float> mBitangents;
         std::vector<float> mTextureCoordinates;
-        std::vector<float> mIndices;
+        std::vector<unsigned int> mIndices;
     };
 }
 
