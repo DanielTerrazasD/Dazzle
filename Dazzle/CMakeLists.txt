@@ -28,7 +28,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp
     ${CMAKE_SOURCE_DIR}/vendor/gl3w/src/gl3w.c
-    )
+)
 
 set(HEADERS
     include/DazzleEngine.hpp
@@ -38,7 +38,7 @@ set(HEADERS
     include/ShadingEffects.hpp
     include/RenderSystem.hpp
     ${CMAKE_SOURCE_DIR}/Assets/Objects/Procedural/Cube.hpp
-    )
+)
 
 # Add an executable with the above sources
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
