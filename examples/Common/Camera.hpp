@@ -1,0 +1,56 @@
+#ifndef _BASIC_CAMERA_HPP_
+#define _BASIC_CAMERA_HPP_
+
+#include <iostream>
+
+#include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+
+class Camera
+{
+public:
+    Camera();
+
+    void Initialize(int width, int height, int cursorInputMode);
+    void ProcessInput(GLFWwindow* const window);
+    glm::mat4 GetTransform() const { return mTransform; }
+    // glm::mat4 SetTransform(glm::mat4 transform) { mTransform = transform; }
+
+    glm::mat4 GetProjection() const { return mProjection; }
+    // glm::mat4 SetProjection(glm::mat4 projection) { mProjection = projection; }
+
+    glm::vec3 GetPosition() const { return mCameraPosition; }
+    float GetYaw() const { return mYaw; }
+    float GetPitch() const { return mPitch; }
+
+    void FramebufferResizeCallback(int width, int height);
+    void CursorCallback(double xPosition, double yPosition);
+    void CursorInputModeCallback(int mode);
+    void KeyCallback(int key, int scancode, int action, int mods);
+
+private:
+    unsigned int mBufferWidth;
+    unsigned int mBufferHeight;
+    float mAspect;
+    float mFieldOfView;
+    glm::mat4 mTransform;
+    glm::mat4 mProjection;
+    glm::vec3 mCameraPosition;
+    glm::vec3 mFront;
+    glm::vec3 mUp;
+    float mYaw = 270.0f;
+    float mPitch = 0.0f;
+
+    // Camera Movement Settings
+    const float kCameraSpeed = 0.05f;
+    const float kCameraSensitivity = 0.05f;
+
+    // Cursor position in window coordinates
+    glm::vec2 mCursorPosition;
+
+    // Cursor input mode
+    int mCursorInputMode;
+    bool mCursorInputModeChanged;
+};
+
+#endif // _BASIC_CAMERA_HPP_
