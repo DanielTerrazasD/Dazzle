@@ -8,8 +8,8 @@
 #define assert_with_message(expression, message)                                            \
     ((expression) ? static_cast<void>(0) :                                                  \
     (std::cerr  << "Assertion failed: (" << #expression << ").\n"                           \
-                << "Function: " << __FUNCTION__ << '\n'                                     \
                 << "File: " << __FILE__ << '\n'                                             \
+                << "Function: " << __FUNCTION__ << '\n'                                     \
                 << "Line: " << __LINE__ << '\n'                                             \
                 << "Message: " << message << std::endl, std::abort()))
 
@@ -23,6 +23,7 @@ namespace Dazzle
     namespace Utilities
     {
         const bool kAlwaysFail = false;
+        inline constexpr float DegreesToRadians(float degrees) { return degrees * (float)(3.14159265358979323846 / 180.0); }
     }
 }
 
