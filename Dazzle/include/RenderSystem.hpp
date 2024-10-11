@@ -24,6 +24,7 @@ namespace Dazzle
                                 const GLchar *message,
                                 const void *userParam);
 
+            // Vertex Array Object
             class VAO
             {
             public:
@@ -34,6 +35,42 @@ namespace Dazzle
 
                 VAO& operator=(const VAO& program);
                 VAO& operator=(VAO&& program) noexcept;
+
+                GLuint GetHandle() const;
+                bool IsValid() const;
+            private:
+                GLuint mHandle;
+            };
+
+            // Vertex Buffer Object
+            class VBO
+            {
+            public:
+                VBO();
+                VBO(const VBO& other);
+                VBO(VBO&& other) noexcept;
+                ~VBO();
+
+                VBO& operator=(const VBO& program);
+                VBO& operator=(VBO&& program) noexcept;
+
+                GLuint GetHandle() const;
+                bool IsValid() const;
+            private:
+                GLuint mHandle;
+            };
+
+            // Element Buffer Object
+            class EBO
+            {
+            public:
+                EBO();
+                EBO(const EBO& other);
+                EBO(EBO&& other) noexcept;
+                ~EBO();
+
+                EBO& operator=(const EBO& program);
+                EBO& operator=(EBO&& program) noexcept;
 
                 GLuint GetHandle() const;
                 bool IsValid() const;
@@ -81,6 +118,7 @@ namespace Dazzle
                 ProgramObject& operator=(const ProgramObject& program);
                 ProgramObject& operator=(ProgramObject&& program) noexcept;
 
+                void Initialize();
                 void Link() const;
                 void AttachShader(const ShaderObject& shader) const;
                 void DetachAllShaders() const;

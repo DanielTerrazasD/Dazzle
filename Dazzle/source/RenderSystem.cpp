@@ -87,14 +87,12 @@ void Dazzle::RenderSystem::GL::DebugMessageCallback(  GLenum source,
         case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "GL_DEBUG_SEVERITY_NOTIFICATION\n";   break;
     }
 
-    std::cout << "\nMessage:\n" << message << "\n";
     assert_with_message(Utilities::kAlwaysFail, message);
 }
 
-
 Dazzle::RenderSystem::GL::VAO::VAO() : mHandle(0)
 {
-
+    glCreateVertexArrays(1, &mHandle);
 }
 
 Dazzle::RenderSystem::GL::VAO::VAO(const VAO& other) : mHandle(other.mHandle)
@@ -136,6 +134,93 @@ bool Dazzle::RenderSystem::GL::VAO::IsValid() const
     return mHandle > 0;
 }
 
+Dazzle::RenderSystem::GL::VBO::VBO() : mHandle(0)
+{
+    glCreateBuffers(1, &mHandle);
+}
+
+Dazzle::RenderSystem::GL::VBO::VBO(const VBO& other) : mHandle(other.mHandle)
+{
+
+}
+
+Dazzle::RenderSystem::GL::VBO::VBO(VBO&& other) noexcept : mHandle(other.mHandle) 
+{
+    other.mHandle = 0;
+}
+
+Dazzle::RenderSystem::GL::VBO::~VBO()
+{
+    if (IsValid())
+        glDeleteBuffers(1, &mHandle);
+}
+
+Dazzle::RenderSystem::GL::VBO& Dazzle::RenderSystem::GL::VBO::operator=(const VBO& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::RenderSystem::GL::VBO& Dazzle::RenderSystem::GL::VBO::operator=(VBO&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
+}
+
+GLuint Dazzle::RenderSystem::GL::VBO::GetHandle() const
+{
+    return mHandle;
+}
+
+bool Dazzle::RenderSystem::GL::VBO::IsValid() const
+{
+    return mHandle > 0;
+}
+
+Dazzle::RenderSystem::GL::EBO::EBO() : mHandle(0)
+{
+    glCreateBuffers(1, &mHandle);
+}
+
+Dazzle::RenderSystem::GL::EBO::EBO(const EBO& other) : mHandle(other.mHandle)
+{
+
+}
+
+Dazzle::RenderSystem::GL::EBO::EBO(EBO&& other) noexcept : mHandle(other.mHandle) 
+{
+    other.mHandle = 0;
+}
+
+Dazzle::RenderSystem::GL::EBO::~EBO()
+{
+    if (IsValid())
+        glDeleteBuffers(1, &mHandle);
+}
+
+Dazzle::RenderSystem::GL::EBO& Dazzle::RenderSystem::GL::EBO::operator=(const EBO& other)
+{
+    this->mHandle = other.mHandle;
+    return *this;
+}
+
+Dazzle::RenderSystem::GL::EBO& Dazzle::RenderSystem::GL::EBO::operator=(EBO&& other) noexcept
+{
+    this->mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
+}
+
+GLuint Dazzle::RenderSystem::GL::EBO::GetHandle() const
+{
+    return mHandle;
+}
+
+bool Dazzle::RenderSystem::GL::EBO::IsValid() const
+{
+    return mHandle > 0;
+}
 Dazzle::RenderSystem::GL::ShaderObject::ShaderObject() : mHandle(0), mSourceCode(std::string()), mType(GLenum())
 {
 
@@ -254,7 +339,7 @@ void Dazzle::RenderSystem::GL::ShaderObject::ValidateType(const GLenum& type)
 
 Dazzle::RenderSystem::GL::ProgramObject::ProgramObject()
 {
-    mHandle = glCreateProgram();
+    mHandle = 0;
     mBinaryFormat = 0;
     mBinary = std::vector<GLubyte>();
 }
@@ -299,6 +384,11 @@ Dazzle::RenderSystem::GL::ProgramObject& Dazzle::RenderSystem::GL::ProgramObject
     other.mHandle = 0;
     other.mBinaryFormat = 0;
     return *this;
+}
+
+void Dazzle::RenderSystem::GL::ProgramObject::Initialize()
+{
+    mHandle = glCreateProgram();
 }
 
 void Dazzle::RenderSystem::GL::ProgramObject::Link() const
