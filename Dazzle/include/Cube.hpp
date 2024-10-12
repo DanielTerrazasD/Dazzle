@@ -17,8 +17,6 @@ namespace Dazzle
         Cube(float length);
         ~Cube() override {}
 
-        // void InitializeMesh(unsigned int attributeIndex, unsigned int bindingIndex);
-
         void Draw() const override;
         std::vector<float> GetVertices() const override { return mVertices; }
         std::vector<float> GetNormals() const override { return mNormals; }
