@@ -24,7 +24,7 @@ public:
     float GetPitch() const { return mPitch; }
 
     void FramebufferResizeCallback(int width, int height);
-    void CursorCallback(double xPosition, double yPosition);
+    void CursorPositionCallback(double xPosition, double yPosition);
     void CursorInputModeCallback(int mode);
     void KeyCallback(int key, int scancode, int action, int mods);
 

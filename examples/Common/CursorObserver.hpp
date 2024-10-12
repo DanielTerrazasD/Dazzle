@@ -7,7 +7,7 @@
 class CursorObserver
 {
 public:
-    void CursorPosCallback(double xPosition, double yPosition)
+    void CursorPositionCallback(double xPosition, double yPosition)
     {
         Notify(xPosition, yPosition);
     }

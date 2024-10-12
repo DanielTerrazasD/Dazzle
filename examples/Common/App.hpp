@@ -47,11 +47,11 @@ public:
 
         // Register Scene Callbacks
         mWindow->GetFramebufferObserver().Register([scene = mScene](int w, int h) { scene->FramebufferResizeCallback(w, h); });
-        mWindow->GetKeyboard().Register([scene = mScene](int k, int s, int a, int m) { scene->KeyCallback(k, s, a, m); });
+        mWindow->GetKeyboardObserver().Register([scene = mScene](int k, int s, int a, int m) { scene->KeyCallback(k, s, a, m); });
 
         // Register Camera Callbacks
-        mWindow->GetCursor().Register([this](double x, double y) { mCamera->CursorCallback(x, y); });
-        mWindow->GetCursor().Register([this](int m) { mCamera->CursorInputModeCallback(m); });
+        mWindow->GetCursorObserver().Register([this](double x, double y) { mCamera->CursorPositionCallback(x, y); });
+        mWindow->GetCursorObserver().Register([this](int m) { mCamera->CursorInputModeCallback(m); });
         mWindow->GetFramebufferObserver().Register([this](int w, int h) { mCamera->FramebufferResizeCallback(w, h); });
     }
 

@@ -4,8 +4,8 @@
 
 Window::Window() :  mWindow(nullptr),
                     mCursorInputMode(GLFW_CURSOR_DISABLED),
-                    mCursor(),
-                    mKeyboard(),
+                    mCursorObserver(),
+                    mKeyboardObserver(),
                     mFramebufferObserver()
 {
 }
@@ -88,11 +88,11 @@ void Window::KeyCallback(GLFWwindow* GLFWwindow, int key, int scancode, int acti
             else
                 window->SetCursorInputMode(GLFW_CURSOR_DISABLED);
 
-            auto cursor = window->GetCursor();
+            auto cursor = window->GetCursorObserver();
             cursor.CursorInputModeCallback(window->GetCursorInputMode());
         }
 
-        auto keyboard = window->GetKeyboard();
+        auto keyboard = window->GetKeyboardObserver();
         keyboard.KeyCallback(key, scancode, action, mods);
     }
 }
@@ -103,7 +103,7 @@ void Window::CursorPosCallback(GLFWwindow* GLFWwindow, double xPosition, double 
 
     if (window)
     {
-        auto cursor = window->GetCursor();
-        cursor.CursorPosCallback(xPosition, yPosition);
+        auto cursor = window->GetCursorObserver();
+        cursor.CursorPositionCallback(xPosition, yPosition);
     }
 }

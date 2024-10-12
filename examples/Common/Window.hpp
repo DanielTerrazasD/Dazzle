@@ -22,8 +22,8 @@ public:
     static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void CursorPosCallback(GLFWwindow* window, double xPosition, double yPosition);
 
-    CursorObserver& GetCursor() { return mCursor; }
-    KeyboardObserver& GetKeyboard() { return mKeyboard; }
+    CursorObserver& GetCursorObserver() { return mCursorObserver; }
+    KeyboardObserver& GetKeyboardObserver() { return mKeyboardObserver; }
     FramebufferObserver& GetFramebufferObserver() { return mFramebufferObserver; }
 
     void SetCursorInputMode(int mode) { mCursorInputMode = mode; glfwSetInputMode(mWindow, GLFW_CURSOR, mCursorInputMode); }
@@ -38,8 +38,8 @@ private:
     GLFWwindow* mWindow;
     int mCursorInputMode;
 
-    CursorObserver mCursor;
-    KeyboardObserver mKeyboard;
+    CursorObserver mCursorObserver;
+    KeyboardObserver mKeyboardObserver;
     FramebufferObserver mFramebufferObserver;
 };
 

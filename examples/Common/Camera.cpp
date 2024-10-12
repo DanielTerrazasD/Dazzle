@@ -65,7 +65,7 @@ void Camera::FramebufferResizeCallback(int width, int height)
     mProjection = glm::perspective(Dazzle::Utilities::DegreesToRadians(mFieldOfView), mAspect, 0.1f, 1000.0f);
 }
 
-void Camera::CursorCallback(double xPosition, double yPosition)
+void Camera::CursorPositionCallback(double xPosition, double yPosition)
 {
     if (mCursorInputMode == GLFW_CURSOR_NORMAL)
         return;
