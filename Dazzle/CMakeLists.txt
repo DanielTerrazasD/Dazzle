@@ -15,11 +15,11 @@ find_package(OpenGL REQUIRED)
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
     source/main.cpp
+    source/Cube.cpp
     source/FileManager.cpp
     source/RenderSystem.cpp
     source/ShaderManager.cpp
     source/ShadingEffects.cpp
-    ${CMAKE_SOURCE_DIR}/Assets/Objects/Procedural/Cube.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp
@@ -31,13 +31,13 @@ set(SOURCES
 )
 
 set(HEADERS
+    include/Cube.hpp
     include/DazzleEngine.hpp
     include/FileManager.hpp
     include/Singleton.hpp
     include/ShaderManager.hpp
     include/ShadingEffects.hpp
     include/RenderSystem.hpp
-    ${CMAKE_SOURCE_DIR}/Assets/Objects/Procedural/Cube.hpp
 )
 
 # Add an executable with the above sources
