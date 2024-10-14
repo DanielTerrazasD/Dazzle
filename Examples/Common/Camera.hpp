@@ -1,5 +1,5 @@
-#ifndef _BASIC_CAMERA_HPP_
-#define _BASIC_CAMERA_HPP_
+#ifndef _CAMERA_HPP_
+#define _CAMERA_HPP_
 
 #include <iostream>
 
@@ -13,16 +13,14 @@ public:
 
     void Initialize(int width, int height, int cursorInputMode);
     void ProcessInput(GLFWwindow* const window);
+
     glm::mat4 GetTransform() const { return mTransform; }
-    // glm::mat4 SetTransform(glm::mat4 transform) { mTransform = transform; }
-
     glm::mat4 GetProjection() const { return mProjection; }
-    // glm::mat4 SetProjection(glm::mat4 projection) { mProjection = projection; }
-
     glm::vec3 GetPosition() const { return mCameraPosition; }
     float GetYaw() const { return mYaw; }
     float GetPitch() const { return mPitch; }
 
+    // Callbacks
     void FramebufferResizeCallback(int width, int height);
     void CursorPositionCallback(double xPosition, double yPosition);
     void CursorInputModeCallback(int mode);
@@ -53,4 +51,4 @@ private:
     bool mCursorInputModeChanged;
 };
 
-#endif // _BASIC_CAMERA_HPP_
+#endif // _CAMERA_HPP_

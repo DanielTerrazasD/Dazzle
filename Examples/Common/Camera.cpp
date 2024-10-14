@@ -107,7 +107,6 @@ void Camera::CursorInputModeCallback(int mode)
         mCursorInputModeChanged = true;
         mCursorInputMode = mode;
     }
-
 }
 
 void Camera::KeyCallback(int key, int scancode, int action, int mods)

@@ -1,3 +1,5 @@
+#include "pch.hpp"
+
 #include <iostream>
 
 #include "Window.hpp"
@@ -8,47 +10,6 @@ Window::Window() :  mWindow(nullptr),
                     mKeyboardObserver(),
                     mFramebufferObserver()
 {
-}
-
-void Window::Terminate()
-{
-    glfwDestroyWindow(mWindow);
-    glfwTerminate();
-}
-
-void Window::Initialize(int width, int height, std::string title)
-{
-    // GLFW Configuration:
-    glfwSetErrorCallback(ErrorCallback);
-    if (!glfwInit())
-    {
-        std::cerr << "GLFW initialization failed.\n";
-        return;
-    }
-
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-
-    // Create window with graphics context
-    mWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-    if (mWindow == nullptr)
-    {
-        std::cerr << "GLFW window initialization failed.\n";
-        return;
-    }
-
-    glfwMakeContextCurrent(mWindow);
-    glfwSwapInterval(1); // Enable vsync
-
-    // Disable Cursor by default.
-    glfwSetInputMode(mWindow, GLFW_CURSOR, mCursorInputMode);
-
-    // Setup GLFW callbacks
-    glfwSetWindowUserPointer(mWindow, this);
-    glfwSetCursorPosCallback(mWindow, CursorPosCallback);
-    glfwSetKeyCallback(mWindow, KeyCallback);
-    glfwSetFramebufferSizeCallback(mWindow, FramebufferResizeCallback);
 }
 
 void Window::ErrorCallback(int error, const char* description)
@@ -106,4 +67,88 @@ void Window::CursorPosCallback(GLFWwindow* GLFWwindow, double xPosition, double 
         auto cursor = window->GetCursorObserver();
         cursor.CursorPositionCallback(xPosition, yPosition);
     }
+}
+
+void Window::Initialize(int width, int height, std::string title)
+{
+    // GLFW Configuration:
+    glfwSetErrorCallback(ErrorCallback);
+    if (!glfwInit())
+    {
+        std::cerr << "GLFW initialization failed.\n";
+        return;
+    }
+
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+    // Create window with graphics context
+    mWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    if (mWindow == nullptr)
+    {
+        std::cerr << "GLFW window initialization failed.\n";
+        return;
+    }
+
+    glfwMakeContextCurrent(mWindow);
+    glfwSwapInterval(1); // Enable vsync
+
+    // Initialize GL3W OpenGL loader
+    if (gl3wInit() != GL3W_OK)
+    {
+        std::cerr << "Failed to initialize OpenGL loader!\n";
+        return;
+    }
+
+    // Disable Cursor by default.
+    glfwSetInputMode(mWindow, GLFW_CURSOR, mCursorInputMode);
+
+    // Setup GLFW callbacks
+    glfwSetWindowUserPointer(mWindow, this);
+    glfwSetCursorPosCallback(mWindow, CursorPosCallback);
+    glfwSetKeyCallback(mWindow, KeyCallback);
+    glfwSetFramebufferSizeCallback(mWindow, FramebufferResizeCallback);
+}
+
+void Window::Terminate()
+{
+    glfwDestroyWindow(mWindow);
+    glfwTerminate();
+}
+
+bool Window::ShouldClose() const
+{
+    return glfwWindowShouldClose(mWindow);
+}
+
+void Window::PollEvents() const
+{
+    glfwPollEvents();
+}
+
+void Window::SwapBuffers() const
+{
+    glfwSwapBuffers(mWindow);
+}
+
+void Window::SetCursorInputMode(int mode)
+{
+    mCursorInputMode = mode;
+    glfwSetInputMode(mWindow, GLFW_CURSOR, mCursorInputMode);
+}
+
+GLFWwindow* Window::GetHandle() const
+{
+    return mWindow;
+}
+
+int Window::GetCursorInputMode() const
+{
+    return mCursorInputMode;
+}
+
+double Window::GetTime() const
+{
+    return glfwGetTime();
 }

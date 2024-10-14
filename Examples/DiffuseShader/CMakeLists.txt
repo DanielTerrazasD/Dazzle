@@ -14,7 +14,9 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Cube.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/FileManager.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/RenderSystem.cpp
+    ${CMAKE_SOURCE_DIR}/examples/common/App.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/Camera.cpp
+    ${CMAKE_SOURCE_DIR}/examples/common/UserInterface.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/Window.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
     ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
@@ -32,6 +34,7 @@ set(HEADERS
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Object3D.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/RenderSystem.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Utilities.hpp
+    ${CMAKE_SOURCE_DIR}/examples/common/pch.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/App.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Camera.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/CursorObserver.hpp
@@ -49,9 +52,9 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "examples")
 
 # Specify GLFW_INCLUDE_NONE=1 to not include GLFW any OpenGL headers
-target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
+# target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
 # Specify IMGUI_IMPL_OPENGL_LOADER_CUSTOM=1 to use gl3w from vendor's folder instead
-target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+# target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 
 # Link required libraries for this target
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
