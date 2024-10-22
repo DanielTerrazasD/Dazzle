@@ -37,9 +37,6 @@ set(HEADERS
     ${CMAKE_SOURCE_DIR}/examples/common/pch.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/App.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Camera.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/CursorObserver.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/FramebufferObserver.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/KeyboardObserver.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Scene.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/UserInterface.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Window.hpp
