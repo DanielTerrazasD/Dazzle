@@ -2,12 +2,9 @@
 
 #include "UserInterface.hpp"
 
-#include "Scene.hpp"
-#include "Window.hpp"
-
-void IUserInterface::Initialize(const std::shared_ptr<Window>& window)
+void IUserInterface::Initialize(GLFWwindow* window)
 {
-    if (window == nullptr || window->GetHandle() == nullptr)
+    if (window == nullptr)
         return;
 
     // Setup Dear ImGui context
@@ -33,7 +30,7 @@ void IUserInterface::Initialize(const std::shared_ptr<Window>& window)
     }
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window->GetHandle(), true);
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
 

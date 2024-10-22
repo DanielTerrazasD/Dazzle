@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <mutex>
 
-#include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Camera.hpp"
@@ -21,7 +19,7 @@ Camera::Camera() :  mBufferWidth(0),
 {
 }
 
-void Camera::Initialize(int width, int height, int cursorInputMode)
+void Camera::Initialize(int width, int height)
 {
     mBufferWidth = width;
     mBufferHeight = height;
@@ -31,7 +29,6 @@ void Camera::Initialize(int width, int height, int cursorInputMode)
 
     mCursorPosition = glm::vec2(0.0f, 0.0f);
     mCameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    mCursorInputMode = cursorInputMode;
     mCursorInputModeChanged = true;
 
     mFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -39,19 +36,19 @@ void Camera::Initialize(int width, int height, int cursorInputMode)
     mTransform = glm::lookAt(mCameraPosition, mCameraPosition + mFront, mUp);
 }
 
-void Camera::ProcessInput(GLFWwindow* const window)
+void Camera::ProcessInput(const Keyboard& keyboard)
 {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (keyboard.IsKeyPressed(Keyboard::Key::W))
         mCameraPosition += kCameraSpeed * mFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (keyboard.IsKeyPressed(Keyboard::Key::S))
         mCameraPosition -= kCameraSpeed * mFront;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    if (keyboard.IsKeyPressed(Keyboard::Key::E))
         mCameraPosition += kCameraSpeed * mUp;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    if (keyboard.IsKeyPressed(Keyboard::Key::Q))
         mCameraPosition -= kCameraSpeed * mUp;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (keyboard.IsKeyPressed(Keyboard::Key::A))
         mCameraPosition -= glm::normalize(glm::cross(mFront, mUp)) * kCameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (keyboard.IsKeyPressed(Keyboard::Key::D))
         mCameraPosition += glm::normalize(glm::cross(mFront, mUp)) * kCameraSpeed;
 
     mTransform = glm::lookAt(mCameraPosition, mCameraPosition + mFront, mUp);
@@ -67,8 +64,8 @@ void Camera::FramebufferResizeCallback(int width, int height)
 
 void Camera::CursorPositionCallback(double xPosition, double yPosition)
 {
-    if (mCursorInputMode == GLFW_CURSOR_NORMAL)
-        return;
+    // if (mCursorInputMode == GLFW_CURSOR_NORMAL)
+    //     return;
 
     if (mCursorInputModeChanged)
     {
@@ -102,11 +99,11 @@ void Camera::CursorPositionCallback(double xPosition, double yPosition)
 
 void Camera::CursorInputModeCallback(int mode)
 {
-    if (mCursorInputMode != mode)
-    {
-        mCursorInputModeChanged = true;
-        mCursorInputMode = mode;
-    }
+    // if (mCursorInputMode != mode)
+    // {
+    //     mCursorInputModeChanged = true;
+    //     mCursorInputMode = mode;
+    // }
 }
 
 void Camera::KeyCallback(int key, int scancode, int action, int mods)

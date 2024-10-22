@@ -140,9 +140,9 @@ int main(int argc, char const *argv[])
     config.title = "Diffuse";   // Window Title
 
     auto sceneDiffuse = std::make_shared<Scene_Diffuse>();
-    auto uiDiffuse = std::make_shared<UI_Diffuse>();
+    auto uiDiffuse = std::make_unique<UI_Diffuse>();
 
-    App app(config, sceneDiffuse, uiDiffuse);
+    App app(config, sceneDiffuse, std::move(uiDiffuse));
     app.Run();
 
     return 0;

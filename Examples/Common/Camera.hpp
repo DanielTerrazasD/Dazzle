@@ -3,16 +3,17 @@
 
 #include <iostream>
 
-#include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
+
+#include "Window.hpp"
 
 class Camera
 {
 public:
     Camera();
 
-    void Initialize(int width, int height, int cursorInputMode);
-    void ProcessInput(GLFWwindow* const window);
+    void Initialize(int width, int height);
+    void ProcessInput(const Keyboard& keyboard);
 
     glm::mat4 GetTransform() const { return mTransform; }
     glm::mat4 GetProjection() const { return mProjection; }
