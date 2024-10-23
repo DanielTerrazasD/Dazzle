@@ -19,14 +19,14 @@ struct AppConfig
 class App
 {
 public:
-    App(const AppConfig& config, std::shared_ptr<IScene> scene, std::unique_ptr<IUserInterface> ui);
+    App(const AppConfig& config, std::unique_ptr<IScene> scene, std::unique_ptr<IUserInterface> ui);
     ~App();
     void Run();
 
 private:
     std::shared_ptr<Camera> mCamera;
-    std::shared_ptr<IScene> mScene;
-    std::shared_ptr<Window> mWindow;
+    std::unique_ptr<IScene> mScene;
+    Window mWindow;
 };
 
 #endif // _APP_HPP_

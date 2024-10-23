@@ -102,12 +102,26 @@ class UI_Diffuse : public IUserInterface
 {
 public:
 
-    void SetScene(const std::shared_ptr<IScene>& scene) override { mScene = std::static_pointer_cast<Scene_Diffuse>(scene); }
-    void SetCamera(const std::shared_ptr<Camera>& camera) override { mCamera = camera; }
+    void SetScene(IScene* scene) override { mScene = static_cast<Scene_Diffuse*>(scene); }
+    void SetCamera(Camera* camera) override { mCamera = camera; }
 
     void Update() override
     {
-        auto cubePosition = mScene->GetCubePosition();
+        // Get data from scene
+        glm::vec3 cubePosition = glm::vec3();
+        if (mScene)
+            cubePosition = mScene->GetCubePosition();
+
+        // Get data from camera
+        glm::vec3 cameraPosition = glm::vec3();
+        float cameraYaw = 0.0f;
+        float cameraPitch = 0.0f;
+        if (mCamera)
+        {
+            cameraPosition = mCamera->GetPosition();
+            cameraYaw = mCamera->GetYaw();
+            cameraPitch = mCamera->GetPitch();
+        }
 
         ImGui::Begin("Settings");
         ImGui::Text("Press ESC to close the application.");
@@ -118,8 +132,8 @@ public:
 
         // Camera
         ImGui::SeparatorText("Camera");
-        ImGui::Text("Position - X: %.2f, Y: %.2f, Z: %.2f", mCamera->GetPosition().x, mCamera->GetPosition().y, mCamera->GetPosition().z);
-        ImGui::Text("Yaw: %.2f, Pitch: %.2f", mCamera->GetYaw(), mCamera->GetPitch());
+        ImGui::Text("Position - X: %.2f, Y: %.2f, Z: %.2f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+        ImGui::Text("Yaw: %.2f, Pitch: %.2f", cameraYaw, cameraPitch);
 
         // Cube
         ImGui::SeparatorText("Cube");
@@ -128,8 +142,8 @@ public:
     }
 
 private:
-    std::shared_ptr<Scene_Diffuse> mScene;
-    std::shared_ptr<Camera> mCamera;
+    Scene_Diffuse* mScene;
+    Camera* mCamera;
 };
 
 int main(int argc, char const *argv[])
@@ -139,10 +153,10 @@ int main(int argc, char const *argv[])
     config.height = 720;        // Window Height
     config.title = "Diffuse";   // Window Title
 
-    auto sceneDiffuse = std::make_shared<Scene_Diffuse>();
+    auto sceneDiffuse = std::make_unique<Scene_Diffuse>();
     auto uiDiffuse = std::make_unique<UI_Diffuse>();
 
-    App app(config, sceneDiffuse, std::move(uiDiffuse));
+    App app(config, std::move(sceneDiffuse), std::move(uiDiffuse));
     app.Run();
 
     return 0;
