@@ -5,7 +5,7 @@
 
 #include "glm/glm.hpp"
 
-#include "Window.hpp"
+class Keyboard;
 
 class Camera
 {

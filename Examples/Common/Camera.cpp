@@ -4,6 +4,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Camera.hpp"
+#include "Keyboard.hpp"
 #include "Utilities.hpp"
 
 Camera::Camera() :  mBufferWidth(0),
