@@ -9,7 +9,9 @@ Window::Window() :  mWindow(nullptr),
                     mCursor(nullptr),
                     mKeyboard(nullptr),
                     mFramebuffer(nullptr),
-                    mUserInterface(nullptr)
+                    mUserInterface(nullptr),
+                    mCursorInputMode(GLFW_CURSOR_DISABLED)
+
 {
 }
 
@@ -46,7 +48,8 @@ void Window::Initialize(int width, int height, std::string title, std::unique_pt
     }
 
     // Disable Cursor by default.
-    glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    mCursorInputMode = GLFW_CURSOR_DISABLED;
+    glfwSetInputMode(mWindow, GLFW_CURSOR, mCursorInputMode);
 
     // Setup GLFW callbacks
     glfwSetWindowUserPointer(mWindow, this);
@@ -64,7 +67,7 @@ void Window::Initialize(int width, int height, std::string title, std::unique_pt
     // Register Window KeyCallback
     mKeyboard->Register([this](int k, int s, int a, int m) { KeyCallback(k, s, a, m); });
 
-
+    // Initialize ImGui
     mUserInterface = std::move(ui);
     mUserInterface->Initialize(mWindow);
 }
@@ -96,6 +99,24 @@ void Window::SwapBuffers() const
 double Window::GetTime() const
 {
     return glfwGetTime();
+}
+
+void Window::CursorInputModeCallback(CursorInputMode::Mode mode)
+{
+    switch (mode)
+    {
+    case CursorInputMode::Mode::Normal:
+        mCursorInputMode = GLFW_CURSOR_NORMAL;
+        break;
+    case CursorInputMode::Mode::Hidden:
+        mCursorInputMode = GLFW_CURSOR_HIDDEN;
+        break;
+    case CursorInputMode::Mode::Disabled:
+        mCursorInputMode = GLFW_CURSOR_DISABLED;
+        break;
+    }
+
+    glfwSetInputMode(mWindow, GLFW_CURSOR, mCursorInputMode);
 }
 
 void Window::KeyCallback(int key, int scancode, int action, int mods)

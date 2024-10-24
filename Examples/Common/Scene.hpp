@@ -4,7 +4,6 @@
 #include <string>
 
 #include "Camera.hpp"
-#include "Window.hpp"
 
 struct IScene
 {

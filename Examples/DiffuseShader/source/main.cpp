@@ -1,11 +1,9 @@
-#include "pch.hpp"
-
 #include <iostream>
-#include <functional>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "imgui.h"
 
 #include "App.hpp"
 #include "Camera.hpp"
@@ -142,8 +140,8 @@ public:
     }
 
 private:
-    Scene_Diffuse* mScene;
-    Camera* mCamera;
+    Scene_Diffuse* mScene = nullptr;
+    Camera* mCamera = nullptr;
 };
 
 int main(int argc, char const *argv[])

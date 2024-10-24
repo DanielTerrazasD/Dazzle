@@ -65,8 +65,8 @@ void Camera::FramebufferResizeCallback(int width, int height)
 
 void Camera::CursorPositionCallback(double xPosition, double yPosition)
 {
-    // if (mCursorInputMode == GLFW_CURSOR_NORMAL)
-    //     return;
+    if (mCursorInputMode == CursorInputMode::Mode::Normal)
+        return;
 
     if (mCursorInputModeChanged)
     {
@@ -98,16 +98,11 @@ void Camera::CursorPositionCallback(double xPosition, double yPosition)
     mTransform = glm::lookAt(mCameraPosition, mCameraPosition + mFront, mUp);
 }
 
-void Camera::CursorInputModeCallback(int mode)
+void Camera::CursorInputModeCallback(CursorInputMode::Mode mode)
 {
-    // if (mCursorInputMode != mode)
-    // {
-    //     mCursorInputModeChanged = true;
-    //     mCursorInputMode = mode;
-    // }
-}
-
-void Camera::KeyCallback(int key, int scancode, int action, int mods)
-{
-
+    if (mCursorInputMode != mode)
+    {
+        mCursorInputModeChanged = true;
+        mCursorInputMode = mode;
+    }
 }

@@ -4,15 +4,17 @@
 #include <string>
 #include <memory>
 
-#include "Camera.hpp"
-#include "Scene.hpp"
-#include "UserInterface.hpp"
+#include "CursorInputMode.hpp"
 #include "Window.hpp"
+
+class Camera;
+struct IUserInterface;
+struct IScene;
 
 struct AppConfig
 {
-    int width;
-    int height;
+    int width{};
+    int height{};
     std::string title;
 };
 
@@ -27,6 +29,7 @@ private:
     std::shared_ptr<Camera> mCamera;
     std::unique_ptr<IScene> mScene;
     Window mWindow;
+    CursorInputMode mCursorMode;
 };
 
 #endif // _APP_HPP_

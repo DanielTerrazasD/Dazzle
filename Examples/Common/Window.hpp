@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "Cursor.hpp"
+#include "CursorInputMode.hpp"
 #include "Framebuffer.hpp"
 #include "Keyboard.hpp"
 
@@ -31,8 +32,12 @@ public:
     IUserInterface& GetUserInterface() { return *mUserInterface; }
     double GetTime() const;
 
+    // Callbacks
+    void CursorInputModeCallback(CursorInputMode::Mode mode);
+
 private:
     GLFWwindow* mWindow;
+    int mCursorInputMode;
 
     std::unique_ptr<Cursor> mCursor;
     std::unique_ptr<Framebuffer> mFramebuffer;

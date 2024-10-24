@@ -5,6 +5,8 @@
 
 #include "glm/glm.hpp"
 
+#include "CursorInputMode.hpp"
+
 class Keyboard;
 
 class Camera
@@ -24,8 +26,7 @@ public:
     // Callbacks
     void FramebufferResizeCallback(int width, int height);
     void CursorPositionCallback(double xPosition, double yPosition);
-    void CursorInputModeCallback(int mode);
-    void KeyCallback(int key, int scancode, int action, int mods);
+    void CursorInputModeCallback(CursorInputMode::Mode mode);
 
 private:
     unsigned int mBufferWidth;
@@ -48,7 +49,7 @@ private:
     glm::vec2 mCursorPosition;
 
     // Cursor input mode
-    int mCursorInputMode;
+    CursorInputMode::Mode mCursorInputMode;
     bool mCursorInputModeChanged;
 };
 

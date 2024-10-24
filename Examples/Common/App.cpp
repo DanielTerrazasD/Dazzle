@@ -1,6 +1,9 @@
 #include "RenderSystem.hpp"
 
 #include "App.hpp"
+#include "Camera.hpp"
+#include "Scene.hpp"
+#include "UserInterface.hpp"
 
 App::App(const AppConfig& config, std::unique_ptr<IScene> scene, std::unique_ptr<IUserInterface> ui)
 {
@@ -22,14 +25,20 @@ App::App(const AppConfig& config, std::unique_ptr<IScene> scene, std::unique_ptr
     mWindow.GetUserInterface().SetScene(mScene.get());
     mWindow.GetUserInterface().SetCamera(mCamera.get());
 
+    // Register Cursor Input Mode to Keyboard's Callback
+    mWindow.GetKeyboard().Register([&cursorMode = this->mCursorMode](int k, int s, int a, int m) { cursorMode.KeyCallback(k, s, a, m); });
+
+    // Register Cursor Input Mode Callbacks
+    mCursorMode.Register([&window = this->mWindow](CursorInputMode::Mode mode) { window.CursorInputModeCallback(mode); });
+    mCursorMode.Register([camera = mCamera.get()](CursorInputMode::Mode mode) { camera->CursorInputModeCallback(mode); });
+
     // Register Scene Callbacks
     mWindow.GetFramebuffer().Register([scene = mScene.get()](int w, int h) { scene->FramebufferResizeCallback(w, h); });
     mWindow.GetKeyboard().Register([scene = mScene.get()](int k, int s, int a, int m) { scene->KeyCallback(k, s, a, m); });
 
     // Register Camera Callbacks
-    mWindow.GetCursor().Register([this](double x, double y) { mCamera->CursorPositionCallback(x, y); });
-    // mWindow.GetCursor().Register([this](int m) { mCamera->CursorInputModeCallback(m); });
-    mWindow.GetFramebuffer().Register([this](int w, int h) { mCamera->FramebufferResizeCallback(w, h); });
+    mWindow.GetCursor().Register([camera = mCamera.get()](double x, double y) { camera->CursorPositionCallback(x, y); });
+    mWindow.GetFramebuffer().Register([camera = mCamera.get()](int w, int h) { camera->FramebufferResizeCallback(w, h); });
 }
 
 App::~App()

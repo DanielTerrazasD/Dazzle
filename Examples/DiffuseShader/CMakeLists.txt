@@ -17,6 +17,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/examples/common/App.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/Camera.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/Cursor.cpp
+    ${CMAKE_SOURCE_DIR}/examples/common/CursorInputMode.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/Framebuffer.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/Keyboard.cpp
     ${CMAKE_SOURCE_DIR}/examples/common/UserInterface.cpp
@@ -41,6 +42,7 @@ set(HEADERS
     ${CMAKE_SOURCE_DIR}/examples/common/App.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Camera.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Cursor.hpp
+    ${CMAKE_SOURCE_DIR}/examples/common/CursorInputMode.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Framebuffer.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Keyboard.hpp
     ${CMAKE_SOURCE_DIR}/examples/common/Scene.hpp
