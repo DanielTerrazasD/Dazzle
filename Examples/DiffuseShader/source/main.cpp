@@ -123,7 +123,7 @@ public:
 
         ImGui::Begin("Settings");
         ImGui::Text("Press ESC to close the application.");
-        ImGui::Text("Press TAB to toggle focus mode.");
+        ImGui::Text("Press TAB to toggle cursor capture mode.");
 
         // Shader
         ImGui::SeparatorText("Diffuse Shader");
