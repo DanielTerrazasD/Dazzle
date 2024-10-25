@@ -1,4 +1,4 @@
-#include "RenderSystem.hpp"
+// #include "RenderSystem.hpp"
 
 #include "App.hpp"
 #include "Camera.hpp"
@@ -15,7 +15,7 @@ App::App(const AppConfig& config, std::unique_ptr<IScene> scene, std::unique_ptr
     mCamera->Initialize(config.width, config.height);
 
     // Set up OpenGL Debug Message Callback
-    Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
+    // Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
 
     // Initialize Scene
     mScene = std::move(scene);

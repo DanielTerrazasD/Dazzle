@@ -28,6 +28,8 @@ public:
     {
         mCamera = camera;
 
+        Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
+
         // -----------------------------------------------------------------------------------------
         // Shader Program
         // Get the source code for shaders
