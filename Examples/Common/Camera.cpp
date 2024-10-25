@@ -5,7 +5,11 @@
 
 #include "Camera.hpp"
 #include "Keyboard.hpp"
-#include "Utilities.hpp"
+
+constexpr float DegreesToRadians(float degrees)
+{
+    return (degrees * 3.1415926) / 180.0;
+}
 
 Camera::Camera() :  mBufferWidth(0),
                     mBufferHeight(0),
@@ -26,7 +30,7 @@ void Camera::Initialize(int width, int height)
     mBufferHeight = height;
     mFieldOfView = 60.0f;
     mAspect = static_cast<float>(mBufferWidth) / static_cast<float>(mBufferHeight);
-    mProjection = glm::perspective(Dazzle::Utilities::DegreesToRadians(mFieldOfView), mAspect, 0.1f, 1000.0f);
+    mProjection = glm::perspective(DegreesToRadians(mFieldOfView), mAspect, 0.1f, 1000.0f);
 
     mCursorPosition = glm::vec2(0.0f, 0.0f);
     mCameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -60,7 +64,7 @@ void Camera::FramebufferResizeCallback(int width, int height)
     mBufferWidth = width;
     mBufferHeight = height;
     mAspect = static_cast<float>(mBufferWidth) / static_cast<float>(mBufferHeight);
-    mProjection = glm::perspective(Dazzle::Utilities::DegreesToRadians(mFieldOfView), mAspect, 0.1f, 1000.0f);
+    mProjection = glm::perspective(DegreesToRadians(mFieldOfView), mAspect, 0.1f, 1000.0f);
 }
 
 void Camera::CursorPositionCallback(double xPosition, double yPosition)
