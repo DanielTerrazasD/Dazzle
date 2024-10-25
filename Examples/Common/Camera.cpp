@@ -8,7 +8,7 @@
 
 constexpr float DegreesToRadians(float degrees)
 {
-    return (degrees * 3.1415926) / 180.0;
+    return (float)((degrees * 3.1415926) / 180.0);
 }
 
 Camera::Camera() :  mBufferWidth(0),
@@ -20,7 +20,9 @@ Camera::Camera() :  mBufferWidth(0),
                     mCameraPosition(glm::vec3()),
                     mFront(glm::vec3()),
                     mUp(glm::vec3()),
-                    mTransform(glm::mat4())
+                    mTransform(glm::mat4()),
+                    mCursorInputMode(CursorInputMode::Mode::Disabled),
+                    mCursorInputModeChanged(true)
 {
 }
 
@@ -34,7 +36,6 @@ void Camera::Initialize(int width, int height)
 
     mCursorPosition = glm::vec2(0.0f, 0.0f);
     mCameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    mCursorInputModeChanged = true;
 
     mFront = glm::vec3(0.0f, 0.0f, -1.0f);
     mUp = glm::vec3(0.0f, 1.0f, 0.0f);
