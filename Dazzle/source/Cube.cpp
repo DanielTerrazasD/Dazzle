@@ -1,10 +1,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Cube.hpp"
+#include <GL/gl3w.h>
+
 #include "RenderSystem.hpp"
+#include "Cube.hpp"
 #include "Utilities.hpp"
 
-Dazzle::Cube::Cube(float length) : mAreBuffersSet(false)
+Dazzle::Cube::Cube(float length) : mVAO(nullptr), mVBO(nullptr), mEBO(nullptr)
 {
     // Half of the length of a cube's side.
     const float s = length / 2.0f;
@@ -154,10 +156,10 @@ Dazzle::Cube::Cube(float length) : mAreBuffersSet(false)
 
 void Dazzle::Cube::Draw() const
 {
-    if (mAreBuffersSet)
+    if (mVAO)
     {
         // Bind Vertex Array Object
-        glBindVertexArray(mVAO.GetHandle());
+        glBindVertexArray(mVAO->GetHandle());
 
         // Cull inner faces
         glEnable(GL_CULL_FACE);
@@ -179,7 +181,7 @@ void Dazzle::Cube::Rotate(glm::vec3 axis, float degrees)
     mTransform = glm::rotate(mTransform, radians, axis);
 }
 
-void Dazzle::Cube::SetUpBuffers(GLuint bindingIndex, GLuint attributeIndex)
+void Dazzle::Cube::SetUpBuffers(unsigned int bindingIndex, unsigned int attributeIndex)
 {
     const GLintptr kOffset = 0;
     const GLintptr kStride = 0;
@@ -189,21 +191,25 @@ void Dazzle::Cube::SetUpBuffers(GLuint bindingIndex, GLuint attributeIndex)
     const GLenum kDataType = GL_FLOAT;
     const GLboolean kNormalized = GL_FALSE;
 
+    mVAO = std::make_unique<RenderSystem::GL::VAO>();
+    mVBO = std::make_unique<RenderSystem::GL::VBO>();
+    mEBO = std::make_unique<RenderSystem::GL::EBO>();
+
     // Set up the data store for the Vertex Buffer Object
-    glNamedBufferStorage(mVBO.GetHandle(), GetVertices().size() * sizeof(float), GetVertices().data(), 0);
+    glNamedBufferStorage(mVBO->GetHandle(), GetVertices().size() * sizeof(float), GetVertices().data(), 0);
 
     // Set up the data store for the Element Buffer Object
-    glNamedBufferStorage(mEBO.GetHandle(), GetIndices().size() * sizeof(unsigned int), GetIndices().data(), 0);
+    glNamedBufferStorage(mEBO->GetHandle(), GetIndices().size() * sizeof(unsigned int), GetIndices().data(), 0);
 
     // Bind Vertex Buffer Object to Vertex Array Object
-    glVertexArrayVertexBuffer(  mVAO.GetHandle(),           // Vertex Array Object
+    glVertexArrayVertexBuffer(  mVAO->GetHandle(),           // Vertex Array Object
                                 bindingIndex,              // Binding Index
-                                mVBO.GetHandle(),           // Vertex Buffer Object
+                                mVBO->GetHandle(),           // Vertex Buffer Object
                                 kOffset,                    // Offset (Offset of the first element)
                                 3 * sizeof(float));         // Stride (Distance between elements within the buffer)
 
     // Specify the format for the given attribute
-    glVertexArrayAttribFormat(  mVAO.GetHandle(),           // Vertex Array Object
+    glVertexArrayAttribFormat(  mVAO->GetHandle(),           // Vertex Array Object
                                 attributeIndex,               // (Vertex) Attribute Index
                                 kSize,                      // Size (Number of values per vertex that are stored in the array)
                                 kDataType,                  // Data Type
@@ -211,15 +217,14 @@ void Dazzle::Cube::SetUpBuffers(GLuint bindingIndex, GLuint attributeIndex)
                                 kOffset);                   // Relative Offset
 
     // Specify which vertex buffer binding to use for this attribute
-    glVertexArrayAttribBinding( mVAO.GetHandle(),           // Vertex Array Object
+    glVertexArrayAttribBinding( mVAO->GetHandle(),           // Vertex Array Object
                                 attributeIndex,               // (Vertex) Attribute Index
                                 bindingIndex);             // Binding Index
 
     // Enable the attribute
-    glEnableVertexArrayAttrib(  mVAO.GetHandle(),           // Vertex Array Object
+    glEnableVertexArrayAttrib(  mVAO->GetHandle(),           // Vertex Array Object
                                 attributeIndex);              // (Vertex) Attribute Index
 
     // Bind Element Buffer Object to the element array buffer bind point of the Vertex Array Object
-    glVertexArrayElementBuffer(mVAO.GetHandle(), mEBO.GetHandle());
-    mAreBuffersSet = true;
+    glVertexArrayElementBuffer(mVAO->GetHandle(), mEBO->GetHandle());
 }

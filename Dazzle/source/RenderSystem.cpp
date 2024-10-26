@@ -40,13 +40,13 @@ void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
     }
 }
 
-void Dazzle::RenderSystem::GL::DebugMessageCallback(  GLenum source,
-                                        GLenum type,
-                                        GLuint id,
-                                        GLenum severity,
-                                        GLsizei length,
-                                        const GLchar* message,
-                                        const void* userParam)
+void Dazzle::RenderSystem::GL::DebugMessageCallback(GLenum source,
+                                                    GLenum type,
+                                                    GLuint id,
+                                                    GLenum severity,
+                                                    GLsizei length,
+                                                    const GLchar* message,
+                                                    const void* userParam)
 {
     std::cout << "----------------------------------------\n";
     std::cout << "|Debug Callback                        |\n";
@@ -221,6 +221,7 @@ bool Dazzle::RenderSystem::GL::EBO::IsValid() const
 {
     return mHandle > 0;
 }
+
 Dazzle::RenderSystem::GL::ShaderObject::ShaderObject() : mHandle(0), mSourceCode(std::string()), mType(GLenum())
 {
 

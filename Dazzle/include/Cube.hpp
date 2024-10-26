@@ -5,7 +5,13 @@
 #include <vector>
 
 #include "Object3D.hpp"
-#include "RenderSystem.hpp"
+
+namespace RenderSystem::GL
+{
+    class VAO;
+    class VBO;
+    class EBO;
+}
 
 namespace Dazzle
 {
@@ -31,10 +37,10 @@ namespace Dazzle
         void Rotate(glm::vec3 axis, float degrees);
         /// TODO: void Scale(glm::vec3 factor);
 
-        void SetUpBuffers(GLuint bindingIndex, GLuint attributeIndex);
-        RenderSystem::GL::VAO GetVAO() const { return mVAO; }
-        RenderSystem::GL::VBO GetVBO() const { return mVBO; }
-        RenderSystem::GL::EBO GetEBO() const { return mEBO; }
+        void SetUpBuffers(unsigned int bindingIndex, unsigned int attributeIndex);
+        RenderSystem::GL::VAO* GetVAO() const { return mVAO.get(); }
+        RenderSystem::GL::VBO* GetVBO() const { return mVBO.get(); }
+        RenderSystem::GL::EBO* GetEBO() const { return mEBO.get(); }
 
     private:
         std::vector<float> mVertices;
@@ -45,10 +51,9 @@ namespace Dazzle
         std::vector<unsigned int> mIndices;
         glm::mat4 mTransform;
 
-        bool mAreBuffersSet;
-        RenderSystem::GL::VAO mVAO;
-        RenderSystem::GL::VBO mVBO;
-        RenderSystem::GL::EBO mEBO;
+        std::unique_ptr<RenderSystem::GL::VAO> mVAO;
+        std::unique_ptr<RenderSystem::GL::VBO> mVBO;
+        std::unique_ptr<RenderSystem::GL::EBO> mEBO;
     };
 }
 

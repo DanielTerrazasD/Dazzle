@@ -5,9 +5,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui.h"
 
+#include "RenderSystem.hpp"
 #include "Cube.hpp"
 #include "FileManager.hpp"
-#include "RenderSystem.hpp"
 
 #include "App.hpp"
 #include "Camera.hpp"
