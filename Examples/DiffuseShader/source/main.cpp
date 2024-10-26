@@ -5,11 +5,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui.h"
 
-#include "App.hpp"
-#include "Camera.hpp"
 #include "Cube.hpp"
 #include "FileManager.hpp"
 #include "RenderSystem.hpp"
+
+#include "App.hpp"
+#include "Camera.hpp"
 #include "Scene.hpp"
 #include "UserInterface.hpp"
 
