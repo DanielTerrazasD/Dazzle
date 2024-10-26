@@ -2,8 +2,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-set(PROJECT_NAME DiffuseShader)
-project (${PROJECT_NAME})
+set(TARGET DiffuseShader)
 
 # Required packages
 find_package(OpenGL REQUIRED)
@@ -14,22 +13,6 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Cube.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/FileManager.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/RenderSystem.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/App.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Camera.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Cursor.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/CursorInputMode.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Framebuffer.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Keyboard.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/UserInterface.cpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Window.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_tables.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui_widgets.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp
-    ${CMAKE_SOURCE_DIR}/vendor/gl3w/src/gl3w.c
 )
 
 set(HEADERS
@@ -38,42 +21,27 @@ set(HEADERS
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Object3D.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/RenderSystem.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Utilities.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/pch.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/App.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Camera.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Cursor.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/CursorInputMode.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Framebuffer.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Keyboard.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Scene.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/UserInterface.hpp
-    ${CMAKE_SOURCE_DIR}/examples/common/Window.hpp
 )
 
 # Add an executable with the above sources
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${TARGET} ${SOURCES} ${HEADERS})
 
-# Add this project to the "examples" folder.
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "examples")
+# Add this project to the "Examples" folder.
+set_target_properties(${TARGET} PROPERTIES FOLDER "Examples")
 
-# Specify GLFW_INCLUDE_NONE=1 to not include GLFW any OpenGL headers
-# target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
-# Specify IMGUI_IMPL_OPENGL_LOADER_CUSTOM=1 to use gl3w from vendor's folder instead
-# target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+# Ensure that dependencies are compiled first
+add_dependencies(${TARGET} gl3w imgui Common)
+
 
 # Link required libraries for this target
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${TARGET} PRIVATE OpenGL::GL gl3w glfw imgui Common)
 
 # Set the directories that should be included in the build command for this target
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${TARGET}
     PRIVATE 
         ${PROJECT_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/Dazzle/include
         ${CMAKE_SOURCE_DIR}/Examples/Common
-        ${CMAKE_SOURCE_DIR}/Vendor/imgui
-        ${CMAKE_SOURCE_DIR}/Vendor/imgui/backends
-        ${CMAKE_SOURCE_DIR}/Vendor/gl3w/include
         ${CMAKE_SOURCE_DIR}/Vendor/glm
 )
 
