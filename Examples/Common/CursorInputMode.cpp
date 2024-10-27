@@ -14,7 +14,7 @@ void CursorInputMode::Register(std::function<void(Mode)> callback)
 
 void CursorInputMode::KeyCallback(int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
+    if (action == GLFW_PRESS && (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT))
     {
         if (mMode == Mode::Disabled)
             mMode = Mode::Normal;
