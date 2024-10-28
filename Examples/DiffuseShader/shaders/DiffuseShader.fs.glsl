@@ -1,9 +1,10 @@
 #version 460 core
 
-in vec4 vInterpolatedColor;
-out vec4 vColor;
+in vec3 LightIntensity;
 
-void main(void)
+out vec4 FragmentColor;
+
+void main()
 {
-    vColor = vInterpolatedColor;
+    FragmentColor = vec4(LightIntensity, 1.0);
 }

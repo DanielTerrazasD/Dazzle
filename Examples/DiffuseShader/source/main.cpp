@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 
 #include <glm/glm.hpp>
@@ -14,47 +15,71 @@
 #include "Scene.hpp"
 #include "UserInterface.hpp"
 
-struct ShaderProgram
-{
-    GLuint mModelViewLocation;
-    GLuint mProjection;
-};
-ShaderProgram shader;
-
-class Scene_Diffuse : public IScene
+class SceneDiffuse : public IScene
 {
 public:
+    struct UniformLocations
+    {
+        GLuint mMVP;        // (mat4) Model View Projection
+        GLuint mModelView;  // (mat4) Model View
+        GLuint mNormal;     // (mat3) Normal
+
+        GLuint mKd; // (vec3) Diffuse Reflectivity
+        GLuint mLd; // (vec3) Light Intensity
+        GLuint mLp; // (vec4) Light Position In View Coordinates
+    };
 
     void Initialize(const std::shared_ptr<Camera>& camera) override
     {
+        // Variables Initialization
         mCamera = camera;
+        mKd = glm::vec3();
+        mLd = glm::vec3();
+        mLp = glm::vec4();
 
         Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
 
         // -----------------------------------------------------------------------------------------
+        // 3D Objects for this scene:
+        mCube = std::make_unique<Dazzle::Cube>();
+        mCube->SetUpBuffers();
+
+        // -----------------------------------------------------------------------------------------
         // Shader Program
         // Get the source code for shaders
-        auto VSSC = Dazzle::FileManager::ReadFile("shaders\\DiffuseShader.vs.glsl"); // Vertex Shader Source Code
-        auto FSSC = Dazzle::FileManager::ReadFile("shaders\\DiffuseShader.fs.glsl"); // Fragment Shader Source Code
+        auto VSSC = Dazzle::FileManager::ReadFile("shaders\\DiffuseShader.vs.glsl");
+        auto FSSC = Dazzle::FileManager::ReadFile("shaders\\DiffuseShader.fs.glsl");
 
         // Create OpenGL shader objects and build them using the respecting source code.
-        Dazzle::RenderSystem::GL::ShaderObject glVSO;   // Vertex Shader Object
-        Dazzle::RenderSystem::GL::ShaderObject glFSO;   // Fragment Shader Object
+        Dazzle::RenderSystem::GL::ShaderObject glVSO;
+        Dazzle::RenderSystem::GL::ShaderObject glFSO;
         Dazzle::RenderSystem::GL::ShaderBuilder::Build(glVSO, GL_VERTEX_SHADER, VSSC);
         Dazzle::RenderSystem::GL::ShaderBuilder::Build(glFSO, GL_FRAGMENT_SHADER, FSSC);
 
         // Create and build the OpenGL program object.
-        mGLDiffuseShaderProgram.Initialize();
-        Dazzle::RenderSystem::GL::ProgramBuilder::Build(mGLDiffuseShaderProgram, {&glVSO, &glFSO});
+        mProgram.Initialize();
+        Dazzle::RenderSystem::GL::ProgramBuilder::Build(mProgram, {&glVSO, &glFSO});
 
         // Get Uniforms
-        shader.mModelViewLocation = glGetUniformLocation(mGLDiffuseShaderProgram.GetHandle(), "mModelView");
-        shader.mProjection = glGetUniformLocation(mGLDiffuseShaderProgram.GetHandle(), "mProjection");
+        mLocations.mMVP = glGetUniformLocation(mProgram.GetHandle(), "MVP");                // (mat4) Model View Projection
+        mLocations.mModelView = glGetUniformLocation(mProgram.GetHandle(), "ModelView");    // (mat4) Model View
+        mLocations.mNormal = glGetUniformLocation(mProgram.GetHandle(), "Normal");          // (mat3) Normal
+        mLocations.mKd = glGetUniformLocation(mProgram.GetHandle(), "Kd");                  // (vec3) Diffuse Reflectivity
+        mLocations.mLd = glGetUniformLocation(mProgram.GetHandle(), "Ld");                  // (vec3) Light Intensity
+        mLocations.mLp = glGetUniformLocation(mProgram.GetHandle(), "Lp");                  // (vec4) Light Position In View Coordinates
 
         // -----------------------------------------------------------------------------------------
-        // 3D Objects for this scene:
-        mCube = std::make_unique<Dazzle::Cube>();
-        mCube->SetUpBuffers(0, 0);
+        // Use Diffuse Shader
+        glUseProgram(mProgram.GetHandle());
+    }
+
+    void Update(double time) override
+    {
+        static double last = time;
+        double elapsed = time - last;
+        last = time;
+
+        mCube->Rotate(glm::vec3(1.0f, 1.0f, 0.0f), static_cast<float>(elapsed * 50));
     }
 
     void Render() override
@@ -62,58 +87,66 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Get reference to camera
-        auto view_mtx = mCamera->GetTransform();
-        auto projection_mtx = mCamera->GetProjection();
-        auto model_mtx = mCube->GetTransform();
+        glm::mat4 view_mtx = mCamera->GetTransform();
+        glm::mat4 projection_mtx = mCamera->GetProjection();
+        glm::mat4 model_mtx = mCube->GetTransform();
 
-        // Use Diffuse Shader
-        glUseProgram(mGLDiffuseShaderProgram.GetHandle());
         // Update Uniforms
-        auto model_view_mtx = view_mtx * model_mtx;
-        glUniformMatrix4fv(shader.mModelViewLocation, 1, GL_FALSE, glm::value_ptr(model_view_mtx));
-        glUniformMatrix4fv(shader.mProjection, 1, GL_FALSE, glm::value_ptr(projection_mtx));
+        mModelView = view_mtx * model_mtx;
+        mMVP = projection_mtx * mModelView;
+        glm::mat3 normal_mtx = glm::transpose(glm::inverse(mModelView));
+
+        mLp = view_mtx * mLp;
+
+        glUniformMatrix4fv(mLocations.mMVP, 1, GL_FALSE, glm::value_ptr(mMVP));
+        glUniformMatrix4fv(mLocations.mModelView, 1, GL_FALSE, glm::value_ptr(mModelView));
+        glUniformMatrix3fv(mLocations.mNormal, 1, GL_FALSE, glm::value_ptr(normal_mtx));
+        glUniform3f(mLocations.mKd, mKd.r, mKd.g, mKd.b);
+        glUniform3f(mLocations.mLd, mLd.r, mLd.g, mLd.b);
+        glUniform4f(mLocations.mLp, mLp.x, mLp.y, mLp.z, mLp.w);
+
         // Draw Cube
         mCube->Draw();
     }
 
-    void KeyCallback(int key, int scancode, int action, int mods) override {}
-    void CursorCallback(double xPosition, double yPosition) override {}
-    void FramebufferResizeCallback(int width, int height) override
-    {
-        glViewport(0, 0, width, height);
-    }
-    void Update(double time) override
-    {
-        static double last = time;
-        double elapsed = time - last;
-        last = time;
-        
-        mCube->Rotate(glm::vec3(1.0f, 1.0f, 0.0f), static_cast<float>(elapsed * 50));
-    }
-
     glm::vec3 GetCubePosition() const { return glm::vec3(mCube->GetTransform()[3]); }
 
+    void SetKd(float Kd[3]) { mKd = glm::vec3(Kd[0], Kd[1], Kd[2]); }
+    void SetLd(float Ld[3]) { mLd = glm::vec3(Ld[0], Ld[1], Ld[2]); }
+    void SetLp(float Lp[3]) { mLp = glm::vec4(Lp[0], Lp[1], Lp[2], 1.0f); }
+
+    void KeyCallback(int key, int scancode, int action, int mods) override {}
+    void CursorCallback(double xPosition, double yPosition) override {}
+    void FramebufferResizeCallback(int width, int height) override { glViewport(0, 0, width, height); }
+
 private:
-    Dazzle::RenderSystem::GL::ProgramObject mGLDiffuseShaderProgram;
+    Dazzle::RenderSystem::GL::ProgramObject mProgram;
     std::unique_ptr<Dazzle::Cube> mCube;
     std::shared_ptr<Camera> mCamera;
+    UniformLocations mLocations;
+
+    glm::mat4 mMVP;
+    glm::mat4 mModelView;
+    glm::vec3 mKd;
+    glm::vec3 mLd;
+    glm::vec4 mLp;
 };
 
-class UI_Diffuse : public IUserInterface
+class UIDiffuse : public IUserInterface
 {
 public:
 
-    void SetScene(IScene* scene) override { mScene = static_cast<Scene_Diffuse*>(scene); }
+    void SetScene(IScene* scene) override { mScene = static_cast<SceneDiffuse*>(scene); }
     void SetCamera(Camera* camera) override { mCamera = camera; }
 
     void Update() override
     {
-        // Get data from scene
+        // Get data from the scene
         glm::vec3 cubePosition = glm::vec3();
         if (mScene)
             cubePosition = mScene->GetCubePosition();
 
-        // Get data from camera
+        // Get data from the camera
         glm::vec3 cameraPosition = glm::vec3();
         float cameraYaw = 0.0f;
         float cameraPitch = 0.0f;
@@ -126,10 +159,36 @@ public:
 
         ImGui::Begin("Settings");
         ImGui::Text("Press ESC to close the application.");
-        ImGui::Text("Press TAB to toggle cursor capture mode.");
+        ImGui::Text("Press SHIFT to toggle cursor capture mode.");
 
         // Shader
         ImGui::SeparatorText("Diffuse Shader");
+        ImGui::Text("Kd: Diffuse Reflectivity");
+        ImGui::Text("Ld: Light Intensity");
+        ImGui::Text("Lp: Light Position");
+        ImGui::NewLine();
+
+        {
+            ImGui::Text("Kd:"); ImGui::SameLine();
+            ImGui::PushItemWidth(300.0f);
+            ImGui::ColorEdit3("##Diffuse Reflectivity", mKd.data());
+            ImGui::PopItemWidth();
+        }
+        {
+            ImGui::Text("Ld:"); ImGui::SameLine();
+            ImGui::PushItemWidth(300.0f);
+            ImGui::ColorEdit3("##Light Intensity", mLd.data());
+            ImGui::PopItemWidth();
+        }
+        {
+            ImGui::Text("Lp:"); ImGui::SameLine();
+            ImGui::PushItemWidth(300.0f);
+            ImGui::DragFloat3("##Light Position", mLp.data(), 0.1f, -5.0f, 5.0f);
+            ImGui::PopItemWidth();
+        }
+
+        if (ImGui::Button("Reset"))
+            ResetToDefaults();
 
         // Camera
         ImGui::SeparatorText("Camera");
@@ -140,11 +199,34 @@ public:
         ImGui::SeparatorText("Cube");
         ImGui::Text("Position - X: %.2f, Y: %.2f, Z: %.2f", cubePosition.x, cubePosition.y, cubePosition.z);
         ImGui::End();
+
+        // Set data to the scene
+        if (mScene)
+        {
+            mScene->SetKd(mKd.data());
+            mScene->SetLd(mLd.data());
+            mScene->SetLp(mLp.data());
+        }
     }
 
 private:
-    Scene_Diffuse* mScene = nullptr;
+    void ResetToDefaults()
+    {
+        mKd = mKdDefaults;
+        mLd = mLdDefaults;
+        mLp = mLpDefaults;
+    }
+
+    SceneDiffuse* mScene = nullptr;
     Camera* mCamera = nullptr;
+
+    const std::array<float, 3> mKdDefaults = {0.9f, 0.5f, 0.3f};
+    const std::array<float, 3> mLdDefaults = {1.0f, 1.0f, 1.0f};
+    const std::array<float, 3> mLpDefaults = {5.0f, 5.0f, -5.0f};
+
+    std::array<float, 3> mKd{mKdDefaults};   // Diffuse Reflectivity
+    std::array<float, 3> mLd{mLdDefaults};   // Light Intensity
+    std::array<float, 3> mLp{mLpDefaults};   // Light Position
 };
 
 int main(int argc, char const *argv[])
@@ -154,8 +236,8 @@ int main(int argc, char const *argv[])
     config.height = 720;        // Window Height
     config.title = "Diffuse";   // Window Title
 
-    auto sceneDiffuse = std::make_unique<Scene_Diffuse>();
-    auto uiDiffuse = std::make_unique<UI_Diffuse>();
+    auto sceneDiffuse = std::make_unique<SceneDiffuse>();
+    auto uiDiffuse = std::make_unique<UIDiffuse>();
 
     App app(config, std::move(sceneDiffuse), std::move(uiDiffuse));
     app.Run();
