@@ -156,23 +156,22 @@ Dazzle::Cube::Cube(float length) : mVAO(nullptr), mVBO(nullptr), mEBO(nullptr)
 
 void Dazzle::Cube::Draw() const
 {
-    if (mVAO)
-    {
-        // Bind Vertex Array Object
-        glBindVertexArray(mVAO->GetHandle());
+    if (!mVAO->IsValid())
+        return;
 
-        // Cull inner faces
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CCW);
+    glBindVertexArray(mVAO->GetHandle());
 
-        // Draw
-        glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
+    // Cull inner faces
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
-        // It's probably a good idea to unbind the VAO, to prevent making accidental changes to the
-        // bound VAO in other places. However the driver complaints about a performance hit.
-        // glBindVertexArray(0);
-    }
+    // Draw
+    glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
+
+    // It's probably a good idea to unbind the VAO, to prevent making accidental changes to the
+    // bound VAO in other places. However the driver complaints about a performance hit.
+    // glBindVertexArray(0);
 }
 
 void Dazzle::Cube::Rotate(glm::vec3 axis, float degrees)
@@ -181,50 +180,81 @@ void Dazzle::Cube::Rotate(glm::vec3 axis, float degrees)
     mTransform = glm::rotate(mTransform, radians, axis);
 }
 
-void Dazzle::Cube::SetUpBuffers(unsigned int bindingIndex, unsigned int attributeIndex)
+void Dazzle::Cube::SetUpBuffers()
 {
     const GLintptr kOffset = 0;
     const GLintptr kStride = 0;
-    // const GLuint kBindingIndex = 0;  // Binding Index (from 0 to GL_MAX_VERTEX_ATTRIB_BINDINGS)
-    // const GLuint kAttribIndex = 0;   // Vertex Attribute Index
     const GLuint kSize = 3; // The number of values per vertex that are stored in the array.
     const GLenum kDataType = GL_FLOAT;
     const GLboolean kNormalized = GL_FALSE;
 
+    const GLuint kPosAttribIndex = 0;
+    const GLuint kPosBindingIndex = 0;
+    const GLuint kNormAttribIndex = 1;
+    const GLuint kNormBindingIndex = 1;
+
     mVAO = std::make_unique<RenderSystem::GL::VAO>();
     mVBO = std::make_unique<RenderSystem::GL::VBO>();
+    mNVBO = std::make_unique<RenderSystem::GL::VBO>();
     mEBO = std::make_unique<RenderSystem::GL::EBO>();
 
     // Set up the data store for the Vertex Buffer Object
     glNamedBufferStorage(mVBO->GetHandle(), GetVertices().size() * sizeof(float), GetVertices().data(), 0);
 
+    // Set up the data store for the Vertex Buffer Object for Normals
+    glNamedBufferStorage(mNVBO->GetHandle(), GetNormals().size() * sizeof(float), GetNormals().data(), 0);
+
     // Set up the data store for the Element Buffer Object
     glNamedBufferStorage(mEBO->GetHandle(), GetIndices().size() * sizeof(unsigned int), GetIndices().data(), 0);
 
     // Bind Vertex Buffer Object to Vertex Array Object
-    glVertexArrayVertexBuffer(  mVAO->GetHandle(),           // Vertex Array Object
-                                bindingIndex,              // Binding Index
-                                mVBO->GetHandle(),           // Vertex Buffer Object
+    glVertexArrayVertexBuffer(  mVAO->GetHandle(),          // Vertex Array Object
+                                kPosBindingIndex,           // Binding Index
+                                mVBO->GetHandle(),          // Vertex Buffer Object
                                 kOffset,                    // Offset (Offset of the first element)
                                 3 * sizeof(float));         // Stride (Distance between elements within the buffer)
 
     // Specify the format for the given attribute
-    glVertexArrayAttribFormat(  mVAO->GetHandle(),           // Vertex Array Object
-                                attributeIndex,               // (Vertex) Attribute Index
+    glVertexArrayAttribFormat(  mVAO->GetHandle(),          // Vertex Array Object
+                                kPosAttribIndex,            // (Vertex) Attribute Index
                                 kSize,                      // Size (Number of values per vertex that are stored in the array)
                                 kDataType,                  // Data Type
                                 kNormalized,                // Normalized (if parameter represents a normalized integer)
                                 kOffset);                   // Relative Offset
 
     // Specify which vertex buffer binding to use for this attribute
-    glVertexArrayAttribBinding( mVAO->GetHandle(),           // Vertex Array Object
-                                attributeIndex,               // (Vertex) Attribute Index
-                                bindingIndex);             // Binding Index
+    glVertexArrayAttribBinding( mVAO->GetHandle(),          // Vertex Array Object
+                                kPosAttribIndex,            // (Vertex) Attribute Index
+                                kPosBindingIndex);          // Binding Index
 
     // Enable the attribute
-    glEnableVertexArrayAttrib(  mVAO->GetHandle(),           // Vertex Array Object
-                                attributeIndex);              // (Vertex) Attribute Index
+    glEnableVertexArrayAttrib(  mVAO->GetHandle(),          // Vertex Array Object
+                                kPosAttribIndex);           // (Vertex) Attribute Index
+
+    // Bind Vertex Buffer Object for Normals to Vertex Array Object
+    glVertexArrayVertexBuffer(  mVAO->GetHandle(), kNormBindingIndex, mVBO->GetHandle(), kOffset, 3 * sizeof(float));
+
+    // Specify the format for the Normals attribute
+    glVertexArrayAttribFormat(  mVAO->GetHandle(), kNormAttribIndex, kSize, kDataType, kNormalized, kOffset);
+    glVertexArrayAttribBinding( mVAO->GetHandle(), kNormAttribIndex, kNormBindingIndex);
+    glEnableVertexArrayAttrib(  mVAO->GetHandle(), kNormAttribIndex);
 
     // Bind Element Buffer Object to the element array buffer bind point of the Vertex Array Object
     glVertexArrayElementBuffer(mVAO->GetHandle(), mEBO->GetHandle());
+
+    // According to:
+    // https://www.khronos.org/opengl/wiki/Shader_Compilation#Program_setup
+    // "A number of parameters can be set up that will affect the linking process. This generally involves interfaces with the program. These include:"
+    // 1.Vertex shader input attribute locations.
+    // 2.Fragment shader output color numbers.
+    // 3. Transform feedback output capturing.
+    // 4. Program separation.
+    // "You cannot change these values after linking; if you don't set them before linking, you can't set them at all."
+    
+    // Thus, this cause the following warning call to the DebugMessageCallback:
+    // "Program/shader state performance warning: Vertex shader in program X is being recompiled based on GL state.""
+
+    // Since, DSA is being used to configure the VAO, there isn't anything bound to the state machine.
+    // So, a binding call should be made like: glEnableVertexAttribArray or glBindVertexArray. Before the linking process.
+    glBindVertexArray(mVAO->GetHandle());
 }

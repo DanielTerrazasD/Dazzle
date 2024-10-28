@@ -37,7 +37,7 @@ namespace Dazzle
         void Rotate(glm::vec3 axis, float degrees);
         /// TODO: void Scale(glm::vec3 factor);
 
-        void SetUpBuffers(unsigned int bindingIndex, unsigned int attributeIndex);
+        void SetUpBuffers();
         RenderSystem::GL::VAO* GetVAO() const { return mVAO.get(); }
         RenderSystem::GL::VBO* GetVBO() const { return mVBO.get(); }
         RenderSystem::GL::EBO* GetEBO() const { return mEBO.get(); }
@@ -51,9 +51,10 @@ namespace Dazzle
         std::vector<unsigned int> mIndices;
         glm::mat4 mTransform;
 
-        std::unique_ptr<RenderSystem::GL::VAO> mVAO;
-        std::unique_ptr<RenderSystem::GL::VBO> mVBO;
-        std::unique_ptr<RenderSystem::GL::EBO> mEBO;
+        std::unique_ptr<RenderSystem::GL::VAO> mVAO;    // Vertex Array Object
+        std::unique_ptr<RenderSystem::GL::VBO> mVBO;    // Vertex Buffer Object
+        std::unique_ptr<RenderSystem::GL::VBO> mNVBO;   // Normal Vertex Buffer Object
+        std::unique_ptr<RenderSystem::GL::EBO> mEBO;    // Elements Buffer Object
     };
 }
 
