@@ -9,7 +9,7 @@ find_package(OpenGL REQUIRED)
 
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
-    source/main.cpp
+    main.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Cube.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/FileManager.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/RenderSystem.cpp
