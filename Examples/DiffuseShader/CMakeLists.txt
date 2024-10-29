@@ -26,12 +26,19 @@ set(HEADERS
 # Add an executable with the above sources
 add_executable(${TARGET} ${SOURCES} ${HEADERS})
 
+add_custom_command(TARGET ${TARGET} POST_BUILD
+    COMMAND xcopy /E /I /Y 
+    "\"${CMAKE_CURRENT_SOURCE_DIR}/shaders\""  # Source directory
+    "\"$<TARGET_FILE_DIR:${TARGET}>/shaders\"" # Destination directory
+)
+
 # Add this project to the "Examples" folder.
 set_target_properties(${TARGET} PROPERTIES FOLDER "Examples")
+# Set VS Debugging Working Directory equal to $(TargetPath)
+set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET}>")
 
 # Ensure that dependencies are compiled first
 add_dependencies(${TARGET} gl3w imgui Common)
-
 
 # Link required libraries for this target
 target_link_libraries(${TARGET} PRIVATE OpenGL::GL gl3w glfw imgui Common)
@@ -39,10 +46,7 @@ target_link_libraries(${TARGET} PRIVATE OpenGL::GL gl3w glfw imgui Common)
 # Set the directories that should be included in the build command for this target
 target_include_directories(${TARGET}
     PRIVATE 
-        ${PROJECT_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/Dazzle/include
         ${CMAKE_SOURCE_DIR}/Examples/Common
         ${CMAKE_SOURCE_DIR}/Vendor/glm
 )
-
-FILE(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
