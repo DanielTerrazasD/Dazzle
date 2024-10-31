@@ -23,21 +23,22 @@ public:
         GLuint mMVP;        // (mat4) Model View Projection
         GLuint mModelView;  // (mat4) Model View
         GLuint mNormal;     // (mat3) Normal
-
-        GLuint mKd; // (vec3) Diffuse Reflectivity
-        GLuint mLd; // (vec3) Light Intensity
-        GLuint mLp; // (vec4) Light Position In View Coordinates
+        GLuint mKd;         // (vec3) Diffuse Reflectivity
+        GLuint mLd;         // (vec3) Light Intensity
+        GLuint mLp;         // (vec4) Light Position In View Coordinates
     };
 
     void Initialize(const std::shared_ptr<Camera>& camera) override
     {
-        // Variables Initialization
+        // Set up OpenGL debug message callback
+        Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
+
+        // -----------------------------------------------------------------------------------------
+        // Variables Initialization:
         mCamera = camera;
         mKd = glm::vec3();
         mLd = glm::vec3();
         mLp = glm::vec4();
-
-        Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
 
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
@@ -68,7 +69,6 @@ public:
         mLocations.mLd = glGetUniformLocation(mProgram.GetHandle(), "Ld");                  // (vec3) Light Intensity
         mLocations.mLp = glGetUniformLocation(mProgram.GetHandle(), "Lp");                  // (vec4) Light Position In View Coordinates
 
-        // -----------------------------------------------------------------------------------------
         // Use Diffuse Shader
         glUseProgram(mProgram.GetHandle());
     }
