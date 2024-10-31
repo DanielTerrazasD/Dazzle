@@ -2,8 +2,8 @@
 #define _UTILITIES_HPP_
 
 #ifdef _DEBUG
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 #define assert_with_message(expression, message)                                            \
     ((expression) ? static_cast<void>(0) :                                                  \
@@ -23,7 +23,6 @@ namespace Dazzle
     namespace Utilities
     {
         const bool kAlwaysFail = false;
-        inline constexpr float DegreesToRadians(float degrees) { return degrees * (float)(3.14159265358979323846 / 180.0); }
     }
 }
 
