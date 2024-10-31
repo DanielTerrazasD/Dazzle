@@ -43,7 +43,7 @@ public:
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
         mCube = std::make_unique<Dazzle::Cube>();
-        mCube->SetUpBuffers();
+        mCube->InitializeBuffers();
 
         // -----------------------------------------------------------------------------------------
         // Shader Program

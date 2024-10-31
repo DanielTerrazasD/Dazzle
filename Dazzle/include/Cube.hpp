@@ -37,9 +37,10 @@ namespace Dazzle
         void Rotate(glm::vec3 axis, float degrees);
         /// TODO: void Scale(glm::vec3 factor);
 
-        void SetUpBuffers();
+        void InitializeBuffers();
         RenderSystem::GL::VAO* GetVAO() const { return mVAO.get(); }
         RenderSystem::GL::VBO* GetVBO() const { return mVBO.get(); }
+        RenderSystem::GL::VBO* GetNVBO() const { return mNVBO.get(); }
         RenderSystem::GL::EBO* GetEBO() const { return mEBO.get(); }
 
     private:

@@ -180,7 +180,7 @@ void Dazzle::Cube::Rotate(glm::vec3 axis, float degrees)
     mTransform = glm::rotate(mTransform, radians, axis);
 }
 
-void Dazzle::Cube::SetUpBuffers()
+void Dazzle::Cube::InitializeBuffers()
 {
     const GLintptr kOffset = 0;
     const GLintptr kStride = 0;
