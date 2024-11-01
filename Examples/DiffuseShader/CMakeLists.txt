@@ -10,17 +10,16 @@ find_package(OpenGL REQUIRED)
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
     main.cpp
-    ${CMAKE_SOURCE_DIR}/Dazzle/source/Cube.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/FileManager.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/RenderSystem.cpp
+    ${CMAKE_SOURCE_DIR}/Dazzle/source/Sphere.cpp
 )
 
 set(HEADERS
-    ${CMAKE_SOURCE_DIR}/Dazzle/include/Cube.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/FileManager.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Object3D.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/RenderSystem.hpp
-    ${CMAKE_SOURCE_DIR}/Dazzle/include/Utilities.hpp
+    ${CMAKE_SOURCE_DIR}/Dazzle/include/Sphere.hpp
 )
 
 # Add an executable with the above sources

@@ -7,8 +7,8 @@
 #include "imgui.h"
 
 #include "RenderSystem.hpp"
-#include "Cube.hpp"
 #include "FileManager.hpp"
+#include "Sphere.hpp"
 
 #include "App.hpp"
 #include "Camera.hpp"
@@ -42,8 +42,8 @@ public:
 
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
-        mCube = std::make_unique<Dazzle::Cube>();
-        mCube->InitializeBuffers();
+        mSphere = std::make_unique<Dazzle::Sphere>(1.0f, 8, 8); 
+        mSphere->InitializeBuffers();
 
         // -----------------------------------------------------------------------------------------
         // Shader Program
@@ -79,7 +79,7 @@ public:
         double elapsed = time - last;
         last = time;
 
-        mCube->Rotate(glm::vec3(1.0f, 1.0f, 0.0f), static_cast<float>(elapsed * 50));
+        mSphere->Rotate(glm::vec3(1.0f, 1.0f, 0.0f), static_cast<float>(elapsed * 50));
     }
 
     void Render() override
@@ -89,7 +89,7 @@ public:
         // Get reference to camera
         glm::mat4 view_mtx = mCamera->GetTransform();
         glm::mat4 projection_mtx = mCamera->GetProjection();
-        glm::mat4 model_mtx = mCube->GetTransform();
+        glm::mat4 model_mtx = mSphere->GetTransform();
 
         // Update Uniforms
         mModelView = view_mtx * model_mtx;
@@ -105,11 +105,11 @@ public:
         glUniform3f(mLocations.mLd, mLd.r, mLd.g, mLd.b);
         glUniform4f(mLocations.mLp, mLp.x, mLp.y, mLp.z, mLp.w);
 
-        // Draw Cube
-        mCube->Draw();
+        // Draw
+        mSphere->Draw();
     }
 
-    glm::vec3 GetCubePosition() const { return glm::vec3(mCube->GetTransform()[3]); }
+    glm::vec3 GetSpherePosition() const { return glm::vec3(mSphere->GetTransform()[3]); }
 
     void SetKd(float Kd[3]) { mKd = glm::vec3(Kd[0], Kd[1], Kd[2]); }
     void SetLd(float Ld[3]) { mLd = glm::vec3(Ld[0], Ld[1], Ld[2]); }
@@ -121,7 +121,7 @@ public:
 
 private:
     Dazzle::RenderSystem::GL::ProgramObject mProgram;
-    std::unique_ptr<Dazzle::Cube> mCube;
+    std::unique_ptr<Dazzle::Sphere> mSphere;
     std::shared_ptr<Camera> mCamera;
     UniformLocations mLocations;
 
@@ -144,7 +144,7 @@ public:
         // Get data from the scene
         glm::vec3 cubePosition = glm::vec3();
         if (mScene)
-            cubePosition = mScene->GetCubePosition();
+            cubePosition = mScene->GetSpherePosition();
 
         // Get data from the camera
         glm::vec3 cameraPosition = glm::vec3();
