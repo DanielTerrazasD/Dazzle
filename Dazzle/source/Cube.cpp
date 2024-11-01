@@ -1,10 +1,9 @@
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <GL/gl3w.h>
+#include <glm/gtc/constants.hpp>
+#include "glm/gtc/matrix_transform.hpp"
+#include "GL/gl3w.h"
 
 #include "RenderSystem.hpp"
 #include "Cube.hpp"
-#include "Utilities.hpp"
 
 Dazzle::Cube::Cube(float length) : mVAO(nullptr), mVBO(nullptr), mEBO(nullptr)
 {
@@ -176,7 +175,7 @@ void Dazzle::Cube::Draw() const
 
 void Dazzle::Cube::Rotate(glm::vec3 axis, float degrees)
 {
-    auto radians = Utilities::DegreesToRadians(degrees);
+    auto radians = glm::radians<float>(degrees);
     mTransform = glm::rotate(mTransform, radians, axis);
 }
 
