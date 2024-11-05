@@ -144,7 +144,7 @@ void Dazzle::Sphere::InitializeBuffers()
     glEnableVertexArrayAttrib(  mVAO->GetHandle(), kPosAttribIndex);
 
     // Bind Vertex Buffer Object for Normals to Vertex Array Object
-    glVertexArrayVertexBuffer(  mVAO->GetHandle(), kNormBindingIndex, mVBO->GetHandle(), kOffset, 3 * sizeof(float));
+    glVertexArrayVertexBuffer(  mVAO->GetHandle(), kNormBindingIndex, mNVBO->GetHandle(), kOffset, 3 * sizeof(float));
 
     // Specify the format for the Normals attribute
     glVertexArrayAttribFormat(  mVAO->GetHandle(), kNormAttribIndex, kSize, kDataType, kNormalized, kOffset);
