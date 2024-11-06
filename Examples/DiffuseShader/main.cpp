@@ -142,9 +142,9 @@ public:
     void Update() override
     {
         // Get data from the scene
-        glm::vec3 cubePosition = glm::vec3();
+        glm::vec3 spherePosition = glm::vec3();
         if (mScene)
-            cubePosition = mScene->GetSpherePosition();
+            spherePosition = mScene->GetSpherePosition();
 
         // Get data from the camera
         glm::vec3 cameraPosition = glm::vec3();
@@ -195,9 +195,9 @@ public:
         ImGui::Text("Position - X: %.2f, Y: %.2f, Z: %.2f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
         ImGui::Text("Yaw: %.2f, Pitch: %.2f", cameraYaw, cameraPitch);
 
-        // Cube
-        ImGui::SeparatorText("Cube");
-        ImGui::Text("Position - X: %.2f, Y: %.2f, Z: %.2f", cubePosition.x, cubePosition.y, cubePosition.z);
+        // Sphere
+        ImGui::SeparatorText("Sphere");
+        ImGui::Text("Position - X: %.2f, Y: %.2f, Z: %.2f", spherePosition.x, spherePosition.y, spherePosition.z);
         ImGui::End();
 
         // Set data to the scene
