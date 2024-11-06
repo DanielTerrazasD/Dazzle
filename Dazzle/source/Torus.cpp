@@ -103,8 +103,6 @@ void Dazzle::Torus::Draw() const
     if (!mVAO->IsValid())
         return;
 
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
     glBindVertexArray(mVAO->GetHandle());
 
     // Cull inner faces
