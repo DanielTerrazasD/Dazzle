@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include <glm/gtc/constants.hpp>
+
 #include "Object3D.hpp"
 
 namespace RenderSystem::GL
@@ -18,8 +20,9 @@ namespace Dazzle
     class Sphere : public Object3D
     {
     public:
-        Sphere() : Sphere(1.0f, 20, 20) {}
-        Sphere(float radius, unsigned int latitudeSegments, unsigned int longitudeSegments);
+        Sphere() : Sphere(1.0f, 64, 64, 0.0f, glm::pi<float>(), 0.0f, glm::two_pi<float>()) {}
+        Sphere( float radius, unsigned int latitudeSegments, unsigned int longitudeSegments,
+                float thetaStart, float thetaEnd, float phiStart, float phiEnd);
         ~Sphere() override {}
 
         void Draw() const override;

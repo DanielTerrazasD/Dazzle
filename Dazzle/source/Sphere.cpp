@@ -1,14 +1,14 @@
 #include <cmath>
 
-#include <glm/gtc/constants.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 #include "GL/gl3w.h"
 
 #include "RenderSystem.hpp"
 #include "Sphere.hpp"
 
-Dazzle::Sphere::Sphere(float radius, unsigned int latitudeSegments, unsigned int longitudeSegments)
-                        : mVAO(nullptr), mVBO(nullptr), mEBO(nullptr)
+Dazzle::Sphere::Sphere( float radius, unsigned int latitudeSegments, unsigned int longitudeSegments,
+                        float thetaStart, float thetaEnd, float phiStart, float phiEnd)
+                        : mVAO(nullptr), mVBO(nullptr), mNVBO(nullptr), mEBO(nullptr)
 {
     // Calculate the number of indices and vertices according to latitudeSegments and longitudeSegments
     unsigned int vertices = (latitudeSegments + 1) * (longitudeSegments + 1);
@@ -20,22 +20,22 @@ Dazzle::Sphere::Sphere(float radius, unsigned int latitudeSegments, unsigned int
     mTextureCoordinates.resize(vertices * 2);
     mIndices.resize(indices);
 
-    // Calculate the angle factor for latitude and longitude steps
-    float latitudeFactor = glm::pi<float>() / latitudeSegments;
-    float longitudeFactor = glm::two_pi<float>() / longitudeSegments;
+    // Calculate the angle differences
+    float thetaDiff = thetaEnd - thetaStart;
+    float phiDiff = phiEnd - phiStart;
 
     // Generate Vertices, Normals and Texture Coordinates
     unsigned int vertexIndex = 0;
     unsigned int textureCoordIndex = 0;
     for (unsigned int latitude = 0; latitude <= latitudeSegments; ++latitude)
     {
-        float theta = latitude * latitudeFactor;
+        float theta = thetaStart + thetaDiff * (float(latitude) / latitudeSegments);
         float sinTheta = sin(theta);
         float cosTheta = cos(theta);
 
         for (unsigned int longitude = 0; longitude <= longitudeSegments; ++longitude)
         {
-            float phi = longitude * longitudeFactor;
+            float phi = phiStart + phiDiff * (float(longitude) / longitudeSegments);
             float sinPhi = sin(phi);
             float cosPhi = cos(phi);
 
