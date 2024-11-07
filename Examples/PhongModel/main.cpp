@@ -88,6 +88,8 @@ public:
         // Use Diffuse Shader
         glUseProgram(mProgram.GetHandle());
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
     }
 
     void Update(double time) override
