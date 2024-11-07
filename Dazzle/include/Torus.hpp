@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include <glm/gtc/constants.hpp>
+
 #include "Object3D.hpp"
 
 namespace RenderSystem::GL
@@ -18,8 +20,9 @@ namespace Dazzle
     class Torus : public Object3D
     {
     public:
-        Torus() : Torus(1.0f, 0.5f, 50, 50) {}
-        Torus(float radius, float tubeRadius, unsigned int ringSegments, unsigned int tubeSegments);
+        Torus() : Torus(1.0f, 0.5f, 64, 64, 0.0f, glm::two_pi<float>(), 0.0f, glm::two_pi<float>()) {}
+        Torus(  float radius, float tubeRadius, unsigned int ringSegments, unsigned int tubeSegments,
+                float thetaStart, float thetaEnd, float phiStart, float phiEnd);
         ~Torus() override {}
 
         void Draw() const override;

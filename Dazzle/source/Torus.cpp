@@ -8,12 +8,13 @@
 #include "RenderSystem.hpp"
 #include "Torus.hpp"
 
-Dazzle::Torus::Torus(float majorRadius, float minorRadius, unsigned int ringSegments, unsigned int tubeSegments)
+Dazzle::Torus::Torus(   float majorRadius, float minorRadius, unsigned int ringSegments, unsigned int tubeSegments,
+                        float thetaStart, float thetaEnd, float phiStart, float phiEnd)
                         : mVAO(nullptr), mVBO(nullptr), mNVBO(nullptr), mEBO(nullptr)
 {
     // Calculate the number of indices and vertices according to ringSegments and tubeSegments
-    unsigned int vertices = ringSegments * tubeSegments;
-    unsigned int indices  = vertices * 6;
+    unsigned int vertices = (ringSegments + 1) * (tubeSegments + 1);
+    unsigned int indices  = ringSegments * tubeSegments * 6;
 
     // Resize vectors according to the number of vertices and indices
     mVertices.resize(vertices * 3);
@@ -21,22 +22,22 @@ Dazzle::Torus::Torus(float majorRadius, float minorRadius, unsigned int ringSegm
     mTextureCoordinates.resize(vertices * 2);
     mIndices.resize(indices);
 
-    // Calculate the angle factor for ring and tube steps
-    float ringFactor = glm::two_pi<float>() / ringSegments;
-    float tubeFactor = glm::two_pi<float>() / tubeSegments;
+    // Calculate the angle differences
+    float thetaDiff = thetaEnd - thetaStart;
+    float phiDiff = phiEnd - phiStart;
 
     // Generate Vertices, Normals and Texture Coordinates
     unsigned int vertexIndex = 0;
     unsigned int textureCoordIndex = 0;
-    for (unsigned int i = 0; i < ringSegments; ++i)
+    for (unsigned int ring = 0; ring <= ringSegments; ++ring)
     {
-        float theta = i * ringFactor;
+        float theta = thetaStart + thetaDiff * (float(ring) / ringSegments);
         float sinTheta = sin(theta);
         float cosTheta = cos(theta);
 
-        for (unsigned int j = 0; j < tubeSegments; ++j)
+        for (unsigned int tube = 0; tube <= tubeSegments; ++tube)
         {
-            float phi = j * tubeFactor;
+            float phi = phiStart + phiDiff * (float(tube) / tubeSegments);
             float sinPhi = sin(phi);
             float cosPhi = cos(phi);
 
@@ -62,8 +63,8 @@ Dazzle::Torus::Torus(float majorRadius, float minorRadius, unsigned int ringSegm
             vertexIndex += 3;
 
             // Texture Coordinates
-            mTextureCoordinates[textureCoordIndex]       = i / (float)ringSegments;
-            mTextureCoordinates[textureCoordIndex + 1]   = j / (float)tubeSegments;
+            mTextureCoordinates[textureCoordIndex]       = ring / (float)ringSegments;
+            mTextureCoordinates[textureCoordIndex + 1]   = tube / (float)tubeSegments;
 
             textureCoordIndex += 2;
         }
@@ -71,24 +72,22 @@ Dazzle::Torus::Torus(float majorRadius, float minorRadius, unsigned int ringSegm
 
     // Generate Indices
     unsigned int index = 0;
-    for (unsigned int i = 0; i < ringSegments; ++i)
+    for (unsigned int ring = 0; ring < ringSegments; ++ring)
     {
-        for (unsigned int j = 0; j < tubeSegments; ++j)
+        for (unsigned int tube = 0; tube < tubeSegments; ++tube)
         {
-            // Indices calculation using clockwise winding order
-            unsigned int first = (i * tubeSegments + j);
-            unsigned int second = ((i + 1) % ringSegments) * tubeSegments + j;
-            unsigned int firstNextTube = (i * tubeSegments) + ((j + 1) % tubeSegments);
-            unsigned int secondNextTube = ((i + 1) % ringSegments) * tubeSegments + ((j + 1) % tubeSegments);
+            // Indices calculation using counter-clockwise winding order
+            int first = (ring * (tubeSegments + 1)) + tube; // Index at first ring
+            int second = first + tubeSegments + 1;          // Index at second ring
 
             // First triangle
             mIndices[index] = first;
-            mIndices[index + 1] = second;
-            mIndices[index + 2] = firstNextTube;
+            mIndices[index + 1] = second + 1;
+            mIndices[index + 2] = second;
             // Second triangle
-            mIndices[index + 3] = firstNextTube;
-            mIndices[index + 4] = second;
-            mIndices[index + 5] = secondNextTube;
+            mIndices[index + 3] = first;
+            mIndices[index + 4] = first + 1;
+            mIndices[index + 5] = second + 1;
 
             index += 6;
         }
@@ -108,8 +107,7 @@ void Dazzle::Torus::Draw() const
     // Cull inner faces
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glFrontFace(GL_CCW);
 
     // Draw
     glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
