@@ -42,7 +42,7 @@ public:
 
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
-        mSphere = std::make_unique<Dazzle::Sphere>(1.0f, 8, 8); 
+        mSphere = std::make_unique<Dazzle::Sphere>();
         mSphere->InitializeBuffers();
 
         // -----------------------------------------------------------------------------------------
