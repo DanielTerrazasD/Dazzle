@@ -65,18 +65,18 @@ Dazzle::Sphere::Sphere( float radius, unsigned int latitudeSegments, unsigned in
     {
         for (unsigned int longitude = 0; longitude < longitudeSegments; ++longitude)
         {
-            // Indices calculation using clockwise winding order
+            // Indices calculation using counter-clockwise winding order
             unsigned int first = (latitude * (longitudeSegments + 1)) + longitude;
             unsigned int second = first + longitudeSegments + 1;
 
             // First triangle
             mIndices[index] = first;
-            mIndices[index + 1] = second;
-            mIndices[index + 2] = first + 1;
+            mIndices[index + 1] = second + 1;
+            mIndices[index + 2] = second;
             // Second triangle
-            mIndices[index + 3] = second;
-            mIndices[index + 4] = second + 1;
-            mIndices[index + 5] = first + 1;
+            mIndices[index + 3] = first;
+            mIndices[index + 4] = first + 1;
+            mIndices[index + 5] = second + 1;
 
             index += 6;
         }
