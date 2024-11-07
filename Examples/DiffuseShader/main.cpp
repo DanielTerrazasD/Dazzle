@@ -71,6 +71,10 @@ public:
 
         // Use Diffuse Shader
         glUseProgram(mProgram.GetHandle());
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        //glFrontFace(GL_CCW);
     }
 
     void Update(double time) override
@@ -84,7 +88,7 @@ public:
 
     void Render() override
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Get reference to camera
         glm::mat4 view_mtx = mCamera->GetTransform();
