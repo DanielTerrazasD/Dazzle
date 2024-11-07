@@ -91,12 +91,8 @@ void Dazzle::Sphere::Draw() const
     if (!mVAO->IsValid())
         return;
 
+    // Bind VAO
     glBindVertexArray(mVAO->GetHandle());
-
-    // Cull inner faces
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
 
     // Draw
     glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
