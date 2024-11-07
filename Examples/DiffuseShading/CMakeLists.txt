@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-set(TARGET DiffuseShader)
+set(TARGET DiffuseShading)
 
 # Required packages
 find_package(OpenGL REQUIRED)
