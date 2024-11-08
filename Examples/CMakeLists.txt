@@ -4,6 +4,7 @@ add_subdirectory( Common )
 # List of included Examples
 add_subdirectory(DiffuseShading)
 add_subdirectory(PhongModel)
+add_subdirectory(TwoSidedShading)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
