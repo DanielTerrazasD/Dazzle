@@ -85,7 +85,7 @@ public:
         mLocations.mKs = glGetUniformLocation(mProgram.GetHandle(), "material.Ks");                 // (vec3) Specular Intensity
         mLocations.mShininess = glGetUniformLocation(mProgram.GetHandle(), "material.Shininess");   // (float) Shininess Factor
 
-        // Use Diffuse Shader
+        // Use Program Shader
         glUseProgram(mProgram.GetHandle());
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
@@ -174,7 +174,7 @@ private:
     float mShininess;   // Shininess Factor
 };
 
-class UIDiffuse : public IUserInterface
+class UIPhong : public IUserInterface
 {
 public:
 
@@ -308,9 +308,9 @@ int main(int argc, char const *argv[])
     config.title = "Phong Reflection Model";    // Window Title
 
     auto scenePhong = std::make_unique<ScenePhong>();
-    auto uiDiffuse = std::make_unique<UIDiffuse>();
+    auto uiPhong = std::make_unique<UIPhong>();
 
-    App app(config, std::move(scenePhong), std::move(uiDiffuse));
+    App app(config, std::move(scenePhong), std::move(uiPhong));
     app.Run();
 
     return 0;
