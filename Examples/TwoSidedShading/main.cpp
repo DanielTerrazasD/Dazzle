@@ -85,7 +85,7 @@ public:
         mLocations.mKs = glGetUniformLocation(mProgram.GetHandle(), "material.Ks");                 // (vec3) Specular Intensity
         mLocations.mShininess = glGetUniformLocation(mProgram.GetHandle(), "material.Shininess");   // (float) Shininess Factor
 
-        // Use Diffuse Shader
+        // Use Program Shader
         glUseProgram(mProgram.GetHandle());
         glEnable(GL_DEPTH_TEST);
     }
