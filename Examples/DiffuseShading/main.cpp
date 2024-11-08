@@ -28,6 +28,8 @@ public:
         GLuint mLp;         // (vec4) Light Position In View Coordinates
     };
 
+    SceneDiffuse() :  mMVP(), mModelView(), mLocations(), mKd(), mLd(), mLp() {}
+
     void Initialize(const std::shared_ptr<Camera>& camera) override
     {
         // Set up OpenGL debug message callback

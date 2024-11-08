@@ -37,6 +37,9 @@ public:
         GLuint mShininess;  // (float) Shininess
     };
 
+    ScenePhong() :  mMVP(), mModelView(), mLocations(), mKa(), mKd(), mKs(), mShininess(),
+                    mLa(), mLd(), mLs(), mLp() {}
+
     void Initialize(const std::shared_ptr<Camera>& camera) override
     {
         // Set up OpenGL debug message callback
