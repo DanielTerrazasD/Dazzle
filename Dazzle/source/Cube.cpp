@@ -5,7 +5,7 @@
 #include "RenderSystem.hpp"
 #include "Cube.hpp"
 
-Dazzle::Cube::Cube(float length) : mVAO(nullptr), mVBO(nullptr), mEBO(nullptr)
+Dazzle::Cube::Cube(float length) : mVAO(nullptr), mVBO(nullptr), mNVBO(nullptr), mTCVBO(nullptr), mEBO(nullptr)
 {
     // Half of the length of a cube's side.
     const float s = length / 2.0f;
@@ -184,6 +184,7 @@ void Dazzle::Cube::InitializeBuffers()
     const GLintptr kOffset = 0;
     const GLintptr kStride = 0;
     const GLuint kSize = 3; // The number of values per vertex that are stored in the array.
+    const GLuint kTexSize = 2; // Number of values per vertex texture coordinate
     const GLenum kDataType = GL_FLOAT;
     const GLboolean kNormalized = GL_FALSE;
 
@@ -191,10 +192,13 @@ void Dazzle::Cube::InitializeBuffers()
     const GLuint kPosBindingIndex = 0;
     const GLuint kNormAttribIndex = 1;
     const GLuint kNormBindingIndex = 1;
+    const GLuint kTexAttribIndex = 2;
+    const GLuint kTexBindingIndex = 2;
 
     mVAO = std::make_unique<RenderSystem::GL::VAO>();
     mVBO = std::make_unique<RenderSystem::GL::VBO>();
     mNVBO = std::make_unique<RenderSystem::GL::VBO>();
+    mTCVBO = std::make_unique<RenderSystem::GL::VBO>();
     mEBO = std::make_unique<RenderSystem::GL::EBO>();
 
     // Set up the data store for the Vertex Buffer Object
@@ -202,6 +206,9 @@ void Dazzle::Cube::InitializeBuffers()
 
     // Set up the data store for the Vertex Buffer Object for Normals
     glNamedBufferStorage(mNVBO->GetHandle(), GetNormals().size() * sizeof(float), GetNormals().data(), 0);
+
+    // Set up the data store for the Vertex Buffer Object for Texture Coordinates
+    glNamedBufferStorage(mTCVBO->GetHandle(), GetTextureCoordinates().size() * sizeof(float), GetTextureCoordinates().data(), 0);
 
     // Set up the data store for the Element Buffer Object
     glNamedBufferStorage(mEBO->GetHandle(), GetIndices().size() * sizeof(unsigned int), GetIndices().data(), 0);
@@ -237,6 +244,14 @@ void Dazzle::Cube::InitializeBuffers()
     glVertexArrayAttribFormat(  mVAO->GetHandle(), kNormAttribIndex, kSize, kDataType, kNormalized, kOffset);
     glVertexArrayAttribBinding( mVAO->GetHandle(), kNormAttribIndex, kNormBindingIndex);
     glEnableVertexArrayAttrib(  mVAO->GetHandle(), kNormAttribIndex);
+
+    // Bind Vertex Buffer Object for the Texture Coordinates to Vertex Array Object
+    glVertexArrayVertexBuffer(  mVAO->GetHandle(), kTexBindingIndex, mTCVBO->GetHandle(), kOffset, 2 * sizeof(float));
+
+    // Specify the format for the Normals attribute
+    glVertexArrayAttribFormat(  mVAO->GetHandle(), kTexAttribIndex, kTexSize, kDataType, kNormalized, kOffset);
+    glVertexArrayAttribBinding( mVAO->GetHandle(), kTexAttribIndex, kTexBindingIndex);
+    glEnableVertexArrayAttrib(  mVAO->GetHandle(), kTexAttribIndex);
 
     // Bind Element Buffer Object to the element array buffer bind point of the Vertex Array Object
     glVertexArrayElementBuffer(mVAO->GetHandle(), mEBO->GetHandle());

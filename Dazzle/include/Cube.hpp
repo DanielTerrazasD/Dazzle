@@ -41,6 +41,7 @@ namespace Dazzle
         RenderSystem::GL::VAO* GetVAO() const { return mVAO.get(); }
         RenderSystem::GL::VBO* GetVBO() const { return mVBO.get(); }
         RenderSystem::GL::VBO* GetNVBO() const { return mNVBO.get(); }
+        RenderSystem::GL::VBO* GetTCVBO() const { return mTCVBO.get(); }
         RenderSystem::GL::EBO* GetEBO() const { return mEBO.get(); }
 
     private:
@@ -55,6 +56,7 @@ namespace Dazzle
         std::unique_ptr<RenderSystem::GL::VAO> mVAO;    // Vertex Array Object
         std::unique_ptr<RenderSystem::GL::VBO> mVBO;    // Vertex Buffer Object
         std::unique_ptr<RenderSystem::GL::VBO> mNVBO;   // Normal Vertex Buffer Object
+        std::unique_ptr<RenderSystem::GL::VBO> mTCVBO;  // Texture Coordinates Vertex Buffer Object
         std::unique_ptr<RenderSystem::GL::EBO> mEBO;    // Elements Buffer Object
     };
 }
