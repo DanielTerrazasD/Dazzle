@@ -251,8 +251,6 @@ public:
             cameraPitch = mCamera->GetPitch();
         }
 
-        ImGui::ShowDemoWindow();
-
         static float column = 130.0f;
         static float comboWidth = 160.0f;
 
