@@ -1,9 +1,12 @@
+#include "GL/gl3w.h"
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #include "imgui_impl_opengl3.h"
 
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
-#include <GL/gl3w.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -13,7 +16,6 @@
 #include <stdio.h>
 
 #include "RenderSystem.hpp"
-#include "ShaderManager.hpp"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -32,7 +34,7 @@ int main(int, char**)
 {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
-        return 1;
+        return -1;
 
     const char* glsl_version = "#version 460";
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -47,6 +49,13 @@ int main(int, char**)
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+    // Initialize GL3W OpenGL loader
+    if (gl3wInit() != GL3W_OK)
+    {
+        std::cerr << "Failed to initialize OpenGL loader!\n";
+        return -1;
+    }
 
     // Setup GLFW mouse input
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -84,9 +93,6 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     Dazzle::RenderSystem::GL::SetupDebugMessageCallback();
-
-    auto simpleShader = Dazzle::ShaderManager::GetSimpleShader();
-    Dazzle::ShaderManager::UseShader(simpleShader);
 
     while (!glfwWindowShouldClose(window))
     {
