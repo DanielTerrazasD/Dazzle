@@ -158,14 +158,8 @@ void Dazzle::Cube::Draw() const
     if (!mVAO->IsValid())
         return;
 
-    glBindVertexArray(mVAO->GetHandle());
-
-    // Cull inner faces
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-
     // Draw
+    glBindVertexArray(mVAO->GetHandle());
     glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
 
     // It's probably a good idea to unbind the VAO, to prevent making accidental changes to the
