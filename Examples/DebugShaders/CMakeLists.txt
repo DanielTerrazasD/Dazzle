@@ -13,6 +13,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/Dazzle/source/FileManager.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/RenderSystem.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Cube.cpp
+    ${CMAKE_SOURCE_DIR}/Dazzle/source/Plane.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Sphere.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Torus.cpp
 )
@@ -22,6 +23,7 @@ set(HEADERS
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Object3D.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/RenderSystem.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Cube.hpp
+    ${CMAKE_SOURCE_DIR}/Dazzle/include/Plane.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Sphere.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Torus.hpp
 )

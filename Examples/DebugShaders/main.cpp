@@ -10,6 +10,7 @@
 #include "RenderSystem.hpp"
 #include "FileManager.hpp"
 #include "Cube.hpp"
+#include "Plane.hpp"
 #include "Sphere.hpp"
 #include "Torus.hpp"
 
@@ -59,9 +60,13 @@ public:
         auto torus = std::make_unique<Dazzle::Torus>();
         torus->InitializeBuffers();
 
+        auto plane = std::make_unique<Dazzle::Plane>();
+        plane->InitializeBuffers();
+
         mObjects["Cube"] = std::move(cube);
         mObjects["Sphere"] = std::move(sphere);
         mObjects["Torus"] = std::move(torus);
+        mObjects["Plane"] = std::move(plane);
 
         mSelectedObject = mObjects["Cube"].get();
 
@@ -169,6 +174,7 @@ public:
         case 0: mSelectedObject = mObjects.at("Cube").get(); break;
         case 1: mSelectedObject = mObjects.at("Sphere").get(); break;
         case 2: mSelectedObject = mObjects.at("Torus").get(); break;
+        case 3: mSelectedObject = mObjects.at("Plane").get(); break;
         }
     }
 
@@ -266,7 +272,7 @@ public:
 
         ImGui::Text("3D Object:"); ImGui::SameLine();
         ImGui::SetCursorPosX(column); ImGui::SetNextItemWidth(comboWidth);
-        ImGui::Combo("##Object3D", &mObjectCurrentIdx, "Cube\0Sphere\0Torus\0\0");
+        ImGui::Combo("##Object3D", &mObjectCurrentIdx, "Cube\0Sphere\0Torus\0Plane\0\0");
 
         ImGui::Text("Shader Program:"); ImGui::SameLine();
         ImGui::SetCursorPosX(column); ImGui::SetNextItemWidth(comboWidth);
