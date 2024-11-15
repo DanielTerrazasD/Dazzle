@@ -82,9 +82,21 @@ void Dazzle::Plane::Draw() const
     if (!mVAO->IsValid())
         return;
 
-    // Draw
+    // Bind VAO
     glBindVertexArray(mVAO->GetHandle());
+
+    // Draw
     glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
+}
+
+void Dazzle::Plane::SetPosition(glm::vec3 position)
+{
+    mTransform[3] = glm::vec4(position, 1.0f);
+}
+
+void Dazzle::Plane::Translate(glm::vec3 position)
+{
+    mTransform = glm::translate(mTransform, position);
 }
 
 void Dazzle::Plane::Rotate(glm::vec3 axis, float degrees)
