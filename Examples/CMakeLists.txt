@@ -9,6 +9,7 @@ add_subdirectory(TwoSidedShading)
 add_subdirectory(FlatShading)
 add_subdirectory(DiscardFragments)
 add_subdirectory(DirectionalLight)
+add_subdirectory(PerFragmentShading)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
