@@ -198,7 +198,7 @@ private:
     float mPShininess;   // Shininess Factor
 };
 
-class UIPerFragmentShading : public IUserInterface
+class UIBlinnPhong : public IUserInterface
 {
 public:
 
@@ -356,9 +356,9 @@ int main(int argc, char const *argv[])
     config.title = "Blinn-Phong Reflection Model";    // Window Title
 
     auto sceneBlinnPhong = std::make_unique<SceneBlinnPhong>();
-    auto uiPerFragmentShading = std::make_unique<UIPerFragmentShading>();
+    auto uiBlinnPhong = std::make_unique<UIBlinnPhong>();
 
-    App app(config, std::move(sceneBlinnPhong), std::move(uiPerFragmentShading));
+    App app(config, std::move(sceneBlinnPhong), std::move(uiBlinnPhong));
     app.Run();
 
     return 0;
