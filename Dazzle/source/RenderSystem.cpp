@@ -87,7 +87,8 @@ void Dazzle::RenderSystem::GL::DebugMessageCallback(GLenum source,
         case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "GL_DEBUG_SEVERITY_NOTIFICATION\n";   break;
     }
 
-    assert_with_message(Utilities::kAlwaysFail, message);
+    if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
+        assert_with_message(Utilities::kAlwaysFail, message);
 }
 
 Dazzle::RenderSystem::GL::VAO::VAO() : mHandle(0)
