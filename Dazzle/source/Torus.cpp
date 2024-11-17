@@ -109,6 +109,16 @@ void Dazzle::Torus::Draw() const
     glDrawElements(GL_TRIANGLES, (GLsizei)GetIndices().size(), GL_UNSIGNED_INT, 0);
 }
 
+void Dazzle::Torus::SetPosition(glm::vec3 position)
+{
+    mTransform[3] = glm::vec4(position, 1.0f);
+}
+
+void Dazzle::Torus::Translate(glm::vec3 position)
+{
+    mTransform = glm::translate(mTransform, position);
+}
+
 void Dazzle::Torus::Rotate(glm::vec3 axis, float degrees)
 {
     auto radians = glm::radians<float>(degrees);
