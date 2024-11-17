@@ -1,7 +1,7 @@
 # Static library common for all the examples
 add_subdirectory( Common ) 
 
-# List of included Examples
+# List of included examples
 add_subdirectory(DebugShaders)
 add_subdirectory(DiffuseShading)
 add_subdirectory(PhongModel)
@@ -11,6 +11,7 @@ add_subdirectory(DiscardFragments)
 add_subdirectory(DirectionalLight)
 add_subdirectory(PerFragmentShading)
 add_subdirectory(BlinnPhongModel)
+add_subdirectory(SpotLight)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
