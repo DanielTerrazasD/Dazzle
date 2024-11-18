@@ -264,7 +264,7 @@ public:
         ImGui::Text("Press SHIFT to toggle cursor capture mode.");
 
         // Shader
-        ImGui::SeparatorText("Blinn-Phong Reflection Model");
+        ImGui::SeparatorText("Spotlight");
 
         // Variables
         ImGui::NewLine();
@@ -413,7 +413,7 @@ int main(int argc, char const *argv[])
     AppConfig config;
     config.width = 1280;    // Window Width
     config.height = 720;    // Window Height
-    config.title = "Blinn-Phong Reflection Model";    // Window Title
+    config.title = "Spotlight";    // Window Title
 
     auto sceneSpotLight = std::make_unique<SceneSpotLight>();
     auto uISpotLight = std::make_unique<UISpotLight>();
