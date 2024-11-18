@@ -12,6 +12,7 @@ add_subdirectory(DirectionalLight)
 add_subdirectory(PerFragmentShading)
 add_subdirectory(BlinnPhongModel)
 add_subdirectory(SpotLight)
+add_subdirectory(ToonShading)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
