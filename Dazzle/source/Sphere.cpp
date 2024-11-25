@@ -83,7 +83,7 @@ Dazzle::Sphere::Sphere( float radius, unsigned int latitudeSegments, unsigned in
     }
 
     // Transform
-    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 void Dazzle::Sphere::Draw() const

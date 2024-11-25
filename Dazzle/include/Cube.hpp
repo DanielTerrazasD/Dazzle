@@ -32,8 +32,9 @@ namespace Dazzle
         std::vector<unsigned int> GetIndices() const override { return mIndices; }
         glm::mat4 GetTransform() const override { return mTransform; }
 
+        void SetPosition(glm::vec3 position);
 
-        /// TODO: void Tranlate(glm::vec3 position);
+        void Translate(glm::vec3 position);
         void Rotate(glm::vec3 axis, float degrees);
         /// TODO: void Scale(glm::vec3 factor);
 

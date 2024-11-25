@@ -94,7 +94,7 @@ Dazzle::Torus::Torus(   float majorRadius, float minorRadius, unsigned int ringS
     }
 
     // Transform
-    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 void Dazzle::Torus::Draw() const

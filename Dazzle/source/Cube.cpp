@@ -150,7 +150,7 @@ Dazzle::Cube::Cube(float length) : mVAO(nullptr), mVBO(nullptr), mNVBO(nullptr),
     };
 
     // Transform
-    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 void Dazzle::Cube::Draw() const
@@ -165,6 +165,16 @@ void Dazzle::Cube::Draw() const
     // It's probably a good idea to unbind the VAO, to prevent making accidental changes to the
     // bound VAO in other places. However the driver complaints about a performance hit.
     // glBindVertexArray(0);
+}
+
+void Dazzle::Cube::SetPosition(glm::vec3 position)
+{
+    mTransform[3] = glm::vec4(position, 1.0f);
+}
+
+void Dazzle::Cube::Translate(glm::vec3 position)
+{
+    mTransform = glm::translate(mTransform, position);
 }
 
 void Dazzle::Cube::Rotate(glm::vec3 axis, float degrees)

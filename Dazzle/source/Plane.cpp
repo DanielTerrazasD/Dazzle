@@ -74,7 +74,7 @@ Dazzle::Plane::Plane(float width, float depth, unsigned int widthSegments, unsig
     }
 
     // Transform
-    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+    mTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 void Dazzle::Plane::Draw() const
