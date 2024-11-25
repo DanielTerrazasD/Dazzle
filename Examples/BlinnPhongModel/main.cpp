@@ -58,7 +58,8 @@ public:
         mPlane->SetPosition(glm::vec3(0.0f, -1.0f, -5.0f));
         mPlane->InitializeBuffers();
 
-        mSphere = std::make_unique<Dazzle::Sphere>(1.0f, 128, 128, 0.0f, glm::pi<float>(), 0.0f, glm::two_pi<float>()); 
+        mSphere = std::make_unique<Dazzle::Sphere>(1.0f, 128, 128, 0.0f, glm::pi<float>(), 0.0f, glm::two_pi<float>());
+        mSphere->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         mSphere->InitializeBuffers();
 
         // -----------------------------------------------------------------------------------------

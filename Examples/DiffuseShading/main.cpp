@@ -45,6 +45,7 @@ public:
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
         mSphere = std::make_unique<Dazzle::Sphere>();
+        mSphere->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         mSphere->InitializeBuffers();
 
         // -----------------------------------------------------------------------------------------

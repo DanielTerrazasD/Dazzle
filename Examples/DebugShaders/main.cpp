@@ -52,15 +52,19 @@ public:
         // -----------------------------------------------------------------------------------------
         // 3D Objects used by this scene:
         auto cube = std::make_unique<Dazzle::Cube>();
+        cube->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         cube->InitializeBuffers();
 
         auto sphere = std::make_unique<Dazzle::Sphere>();
+        sphere->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         sphere->InitializeBuffers();
 
         auto torus = std::make_unique<Dazzle::Torus>();
+        torus->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         torus->InitializeBuffers();
 
         auto plane = std::make_unique<Dazzle::Plane>();
+        plane->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         plane->InitializeBuffers();
 
         mObjects["Cube"] = std::move(cube);

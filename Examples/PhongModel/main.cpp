@@ -54,7 +54,8 @@ public:
 
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
-        mTorus = std::make_unique<Dazzle::Torus>(); 
+        mTorus = std::make_unique<Dazzle::Torus>();
+        mTorus->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
         mTorus->InitializeBuffers();
 
         // -----------------------------------------------------------------------------------------
