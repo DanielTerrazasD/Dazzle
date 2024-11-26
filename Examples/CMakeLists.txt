@@ -15,6 +15,7 @@ add_subdirectory(SpotLight)
 add_subdirectory(ToonShading)
 add_subdirectory(Fog)
 add_subdirectory(PBR)
+add_subdirectory(Texture)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
