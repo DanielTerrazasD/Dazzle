@@ -17,7 +17,7 @@
 #include "Scene.hpp"
 #include "UserInterface.hpp"
 
-class SceneTexture : public IScene
+class SceneMultipleTextures : public IScene
 {
 public:
     struct UniformLocations
@@ -36,7 +36,7 @@ public:
         GLuint mShininess;  // (float) Shininess
     };
 
-    SceneTexture() :  mMVP(), mModelView(), mNormalMtx(), mLocations(),
+    SceneMultipleTextures() :  mMVP(), mModelView(), mNormalMtx(), mLocations(),
                     mKs(), mShininess(),
                     mLa(), mLds(), mLp() {}
 
@@ -205,11 +205,11 @@ private:
     float mShininess;   // Shininess Factor
 };
 
-class UITexture : public IUserInterface
+class UIMultipleTextures : public IUserInterface
 {
 public:
 
-    void SetScene(IScene* scene) override { mScene = static_cast<SceneTexture*>(scene); }
+    void SetScene(IScene* scene) override { mScene = static_cast<SceneMultipleTextures*>(scene); }
     void SetCamera(Camera* camera) override { mCamera = camera; }
 
     void Update() override
@@ -230,7 +230,7 @@ public:
         ImGui::Text("Press SHIFT to toggle cursor capture mode.");
 
         // Shader
-        ImGui::SeparatorText("Texture 2D");
+        ImGui::SeparatorText("Multiple Textures");
 
         // Variables
         ImGui::NewLine();
@@ -287,7 +287,7 @@ private:
         mLp = mLpDefault;
     }
 
-    SceneTexture* mScene = nullptr;
+    SceneMultipleTextures* mScene = nullptr;
     Camera* mCamera = nullptr;
 
     // Light Default Values
@@ -314,12 +314,12 @@ int main(int argc, char const *argv[])
     AppConfig config;
     config.width = 1280;    // Window Width
     config.height = 720;    // Window Height
-    config.title = "Texture 2D";    // Window Title
+    config.title = "Multiple Textures";    // Window Title
 
-    auto sceneTexture = std::make_unique<SceneTexture>();
-    auto uiTexture = std::make_unique<UITexture>();
+    auto sceneMultipleTextures = std::make_unique<SceneMultipleTextures>();
+    auto uiMultipleTextures = std::make_unique<UIMultipleTextures>();
 
-    App app(config, std::move(sceneTexture), std::move(uiTexture));
+    App app(config, std::move(sceneMultipleTextures), std::move(uiMultipleTextures));
     app.Run();
 
     return 0;
