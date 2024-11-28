@@ -20,6 +20,8 @@ set(SOURCES
     Scene.hpp
     UserInterface.cpp
     UserInterface.hpp
+    Utils.cpp
+    Utils.hpp
     Window.cpp
     Window.hpp
 )
@@ -41,4 +43,5 @@ target_include_directories(${TARGET}
         ${CMAKE_SOURCE_DIR}/Vendor/imgui/backends
         ${CMAKE_SOURCE_DIR}/Vendor/gl3w/include
         ${CMAKE_SOURCE_DIR}/Vendor/glm
+        ${CMAKE_SOURCE_DIR}/Vendor/tinyobjloader
 )
