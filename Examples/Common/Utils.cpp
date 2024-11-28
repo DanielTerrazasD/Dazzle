@@ -141,13 +141,14 @@ std::vector<float> Utils::Geom::GenerateTangents(   const std::vector<float>& ve
         float inverseDeterminant = 1.0f / determinant;
 
         // Calculate tangent
-        // glm::vec3 tangent = inverseDeterminant * (deltaUV2.y * edge1 - deltaUV1.y * edge2); Isn't this equal?
+        // glm::vec3 tangent = inverseDeterminant * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
         glm::vec3 tangent;
         tangent.x = inverseDeterminant * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
         tangent.y = inverseDeterminant * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
         tangent.z = inverseDeterminant * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
         // Calculate bitangents
+        // glm::vec3 bitangent = inverseDeterminant * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
         glm::vec3 bitangent;
         bitangent.x = inverseDeterminant * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
         bitangent.y = inverseDeterminant * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
@@ -176,7 +177,6 @@ std::vector<float> Utils::Geom::GenerateTangents(   const std::vector<float>& ve
         tangent = glm::normalize( tangent - glm::dot(tangent, normal) * normal );
 
         // Calculate handedness
-        // glm::vec3 bitangent = glm::cross(normal, tangent);
         glm::vec3 bitangent( bitangents[i * 3 + 0], bitangents[i * 3 + 1], bitangents[i * 3 + 2] );
         float handedness = (glm::dot(bitangent, tangent) < 0.0) ? -1.0f : 1.0f;
 
