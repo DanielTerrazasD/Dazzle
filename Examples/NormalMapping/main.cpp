@@ -12,6 +12,7 @@
 #include "RenderSystem.hpp"
 #include "FileManager.hpp"
 #include "Mesh.hpp"
+#include "Plane.hpp"
 
 #include "App.hpp"
 #include "Camera.hpp"
@@ -38,6 +39,14 @@ public:
         GLuint mShininess;  // (float) Shininess
     };
 
+    struct Textures
+    {
+        GLuint mOgreDiffuse;
+        GLuint mOgreNormalMap;
+        GLuint mBrickDiffuse;
+        GLuint mBrickNormalMap;
+    };
+
     SceneNormalMapping() :  mMVP(), mModelView(), mNormalMtx(), mLocations(),
                     mKs(), mShininess(),
                     mLa(), mLds(), mLp() {}
@@ -58,6 +67,11 @@ public:
         InitializeMesh(*mOgre, "models\\bs_ears.obj");
         mOgre->InitializeBuffers();
 
+        mPlane = std::make_unique<Dazzle::Plane>(5.0f, 5.0f, 5, 5);
+        mPlane->SetPosition(glm::vec3(0.0f, 0.0f, -3.5f));
+        mPlane->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+        mPlane->InitializeBuffers();
+
         // -----------------------------------------------------------------------------------------
         // Shader Program
         // Get the source code for shaders
@@ -76,12 +90,17 @@ public:
 
         // -----------------------------------------------------------------------------------------
         // Textures for this scene:
-        GLuint ogreDiffuse = CreateTexture("textures\\diffuse.png", true);
+        mTextures.mOgreDiffuse = CreateTexture("textures\\diffuse.png", true);
+        mTextures.mOgreNormalMap = CreateTexture("textures\\normalmap.png", true);
+        mTextures.mBrickDiffuse = CreateTexture("textures\\brick-color.png", false);
+        mTextures.mBrickNormalMap = CreateTexture("textures\\brick-normal.png", false);
+
+        // Activate and bind a valid texture before glUserProgram
+        // Since program expects a valid texture bound to the texture units used.
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, ogreDiffuse);
-        GLuint ogreNormalMap = CreateTexture("textures\\normalmap.png", true);
+        glBindTexture(GL_TEXTURE_2D,  mTextures.mOgreDiffuse);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, ogreNormalMap);
+        glBindTexture(GL_TEXTURE_2D, mTextures.mOgreNormalMap);
 
         // Get Uniforms
         mLocations.mMVP = glGetUniformLocation(mProgram.GetHandle(), "MVP");                        // (mat4) Model View Projection
@@ -98,6 +117,7 @@ public:
         // Use Program Shader
         glUseProgram(mProgram.GetHandle());
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
     }
 
     void Update(double time) override {}
@@ -113,8 +133,19 @@ public:
         glUniform3f(mLocations.mKs, mKs.r, mKs.g, mKs.b);
         glUniform1f(mLocations.mShininess, mShininess);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,  mTextures.mOgreDiffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mTextures.mOgreNormalMap);
         UpdateMatrices(mOgre->GetTransform());
         mOgre->Draw();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,  mTextures.mBrickDiffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mTextures.mBrickNormalMap);
+        UpdateMatrices(mPlane->GetTransform());
+        mPlane->Draw();
     }
 
     void SetKs(float Ks[3]) { mKs = glm::vec3(Ks[0], Ks[1], Ks[2]); }
@@ -212,12 +243,14 @@ private:
     Dazzle::RenderSystem::GL::ProgramObject mProgram;
     std::shared_ptr<Camera> mCamera;
     UniformLocations mLocations;
+    Textures mTextures;
 
     glm::mat4 mMVP;
     glm::mat4 mModelView;
     glm::mat3 mNormalMtx;
 
     std::unique_ptr<Dazzle::Mesh> mOgre;
+    std::unique_ptr<Dazzle::Plane> mPlane;
 
     // Light
     glm::vec3 mLa;      // Light Ambient Intensity

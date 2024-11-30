@@ -12,6 +12,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/Dazzle/source/FileManager.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/RenderSystem.cpp
     ${CMAKE_SOURCE_DIR}/Dazzle/source/Mesh.cpp
+    ${CMAKE_SOURCE_DIR}/Dazzle/source/Plane.cpp
 )
 
 set(HEADERS
@@ -19,6 +20,7 @@ set(HEADERS
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Object3D.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/RenderSystem.hpp
     ${CMAKE_SOURCE_DIR}/Dazzle/include/Mesh.hpp
+    ${CMAKE_SOURCE_DIR}/Dazzle/include/Plane.hpp
 )
 
 add_executable(${TARGET} ${SOURCES} ${HEADERS})
