@@ -16,6 +16,7 @@ Dazzle::Plane::Plane(float width, float depth, unsigned int widthSegments, unsig
     mVertices.resize(vertices * 3);
     mNormals.resize(vertices * 3);
     mTextureCoordinates.resize(vertices * 2);
+    mTangents.resize(vertices * 4);
     mIndices.resize(indices);
 
     float halfWidth = width / 2.0f;
@@ -51,6 +52,15 @@ Dazzle::Plane::Plane(float width, float depth, unsigned int widthSegments, unsig
             mTextureCoordinates[textureCoordIndex + 1] = static_cast<float>(i) / depthSegments;
             textureCoordIndex += 2;
         }
+    }
+
+    // Generate Tangents
+    for (unsigned int i = 0; i < vertices; ++i)
+    {
+        mTangents[i * 4 + 0] = 1.0f;
+        mTangents[i * 4 + 1] = 0.0f;
+        mTangents[i * 4 + 2] = 0.0f;
+        mTangents[i * 4 + 3] = 1.0f;
     }
 
     // Generate Indices
@@ -114,17 +124,24 @@ void Dazzle::Plane::InitializeBuffers()
     const GLenum kDataType = GL_FLOAT;
     const GLboolean kNormalized = GL_FALSE;
 
+    // Vertices
     const GLuint kPosAttribIndex = 0;
     const GLuint kPosBindingIndex = 0;
+    // Normals
     const GLuint kNormAttribIndex = 1;
     const GLuint kNormBindingIndex = 1;
+    // Texture Coordinates
     const GLuint kTexAttribIndex = 2;
     const GLuint kTexBindingIndex = 2;
+    // Tangents
+    const GLuint kTangAttribIndex = 3;
+    const GLuint kTangBindingIndex = 3;
 
     mVAO = std::make_unique<RenderSystem::GL::VAO>();
     mVBO = std::make_unique<RenderSystem::GL::VBO>();
     mNVBO = std::make_unique<RenderSystem::GL::VBO>();
     mTCVBO = std::make_unique<RenderSystem::GL::VBO>();
+    mTVBO = std::make_unique<RenderSystem::GL::VBO>();
     mEBO = std::make_unique<RenderSystem::GL::EBO>();
 
     // Set up the data store for the Vertex Buffer Object
@@ -135,6 +152,9 @@ void Dazzle::Plane::InitializeBuffers()
 
     // Set up the data store for the Vertex Buffer Object for Texture Coordinates
     glNamedBufferStorage(mTCVBO->GetHandle(), GetTextureCoordinates().size() * sizeof(float), GetTextureCoordinates().data(), 0);
+
+    // Set up the data store for the Vertex Buffer Object for Tangents
+    glNamedBufferStorage(mTVBO->GetHandle(), GetTangents().size() * sizeof(float), GetTangents().data(), 0);
 
     // Set up the data store for the Element Buffer Object
     glNamedBufferStorage(mEBO->GetHandle(), GetIndices().size() * sizeof(unsigned int), GetIndices().data(), 0);
@@ -174,10 +194,18 @@ void Dazzle::Plane::InitializeBuffers()
     // Bind Vertex Buffer Object for the Texture Coordinates to Vertex Array Object
     glVertexArrayVertexBuffer(  mVAO->GetHandle(), kTexBindingIndex, mTCVBO->GetHandle(), kOffset, 2 * sizeof(float));
 
-    // Specify the format for the Normals attribute
+    // Specify the format for the Texture Coordinates attribute
     glVertexArrayAttribFormat(  mVAO->GetHandle(), kTexAttribIndex, kTexSize, kDataType, kNormalized, kOffset);
     glVertexArrayAttribBinding( mVAO->GetHandle(), kTexAttribIndex, kTexBindingIndex);
     glEnableVertexArrayAttrib(  mVAO->GetHandle(), kTexAttribIndex);
+
+    // Bind Vertex Buffer Object for the Tangents to Vertex Array Object
+    glVertexArrayVertexBuffer(  mVAO->GetHandle(), kTangBindingIndex, mTVBO->GetHandle(), kOffset, 4 * sizeof(float));
+
+    // Specify the format for the Tangents attribute
+    glVertexArrayAttribFormat(  mVAO->GetHandle(), kTangAttribIndex, kTexSize, kDataType, kNormalized, kOffset);
+    glVertexArrayAttribBinding( mVAO->GetHandle(), kTangAttribIndex, kTangBindingIndex);
+    glEnableVertexArrayAttrib(  mVAO->GetHandle(), kTangAttribIndex);
 
     // Bind Element Buffer Object to the element array buffer bind point of the Vertex Array Object
     glVertexArrayElementBuffer(mVAO->GetHandle(), mEBO->GetHandle());
