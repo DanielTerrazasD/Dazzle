@@ -44,4 +44,5 @@ target_include_directories(${TARGET}
         ${CMAKE_SOURCE_DIR}/Vendor/gl3w/include
         ${CMAKE_SOURCE_DIR}/Vendor/glm
         ${CMAKE_SOURCE_DIR}/Vendor/tinyobjloader
+        ${CMAKE_SOURCE_DIR}/Vendor/stb
 )
