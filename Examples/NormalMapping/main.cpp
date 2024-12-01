@@ -6,8 +6,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "imgui.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include "RenderSystem.hpp"
 #include "FileManager.hpp"
@@ -49,7 +47,8 @@ public:
 
     SceneNormalMapping() :  mMVP(), mModelView(), mNormalMtx(), mLocations(),
                     mKs(), mShininess(),
-                    mLa(), mLds(), mLp() {}
+                    mLa(), mLds(), mLp(),
+                    mTextures() {}
 
     void Initialize(const std::shared_ptr<Camera>& camera) override
     {
@@ -90,10 +89,10 @@ public:
 
         // -----------------------------------------------------------------------------------------
         // Textures for this scene:
-        mTextures.mOgreDiffuse = CreateTexture("textures\\diffuse.png", true);
-        mTextures.mOgreNormalMap = CreateTexture("textures\\normalmap.png", true);
-        mTextures.mBrickDiffuse = CreateTexture("textures\\brick-color.png", false);
-        mTextures.mBrickNormalMap = CreateTexture("textures\\brick-normal.png", false);
+        mTextures.mOgreDiffuse = CreateTexture("textures\\diffuse.png");
+        mTextures.mOgreNormalMap = CreateTexture("textures\\normalmap.png");
+        mTextures.mBrickDiffuse = CreateTexture("textures\\brick-color.png");
+        mTextures.mBrickNormalMap = CreateTexture("textures\\brick-normal.png");
 
         // Activate and bind a valid texture before glUserProgram
         // Since program expects a valid texture bound to the texture units used.
@@ -186,12 +185,12 @@ private:
         glUniform4f(mLocations.mLp, mLp.x, mLp.y, mLp.z, mLp.w);
     }
 
-    GLuint CreateTexture(const std::string& path, bool flipXY)
+    GLuint CreateTexture(const std::string& path, bool flip = true)
     {
         int width, height;
-        unsigned char* data = GetTextureData(path, width, height, flipXY);
+        auto imageData = Utils::Texture::GetTextureData(path, width, height, flip);
         GLuint texture = 0; // OpenGL Texture Object
-        if (data != nullptr)
+        if (imageData)
         {
             // Create texture
             glCreateTextures(GL_TEXTURE_2D, 1, &texture);
@@ -208,22 +207,10 @@ private:
             glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
 
             // Upload texture data
-            glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-            // Free image data
-            stbi_image_free(data);
+            glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, imageData.get());
         }
 
         return texture;
-    }
-
-    unsigned char* GetTextureData(const std::string& path, int& width, int& height, bool flip)
-    {
-        int bytesPerPixel;
-        const int desiredChannels = 4;
-        stbi_set_flip_vertically_on_load(flip);
-        unsigned char *data = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, desiredChannels);
-        return data;
     }
 
     void InitializeMesh(Dazzle::Mesh& mesh, const std::string& path)

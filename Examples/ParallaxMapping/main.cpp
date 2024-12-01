@@ -5,8 +5,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "imgui.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include "RenderSystem.hpp"
 #include "FileManager.hpp"
@@ -87,9 +85,9 @@ public:
 
         // -----------------------------------------------------------------------------------------
         // Textures for this scene:
-        GLuint bricksDiffuse = CreateTexture("textures\\brick-color.png", true);
-        GLuint bricksNormalMap = CreateTexture("textures\\brick-normal.png", true);
-        GLuint bricksHeightMap = CreateTexture("textures\\brick-height.png", true);
+        GLuint bricksDiffuse = CreateTexture("textures\\brick-color.png");
+        GLuint bricksNormalMap = CreateTexture("textures\\brick-normal.png");
+        GLuint bricksHeightMap = CreateTexture("textures\\brick-height.png");
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, bricksDiffuse);
         glActiveTexture(GL_TEXTURE1);
@@ -172,12 +170,12 @@ private:
         glUniform1i(mLocations.mMappingMode, mMappingMode);
     }
 
-    GLuint CreateTexture(const std::string& path, bool flipXY)
+    GLuint CreateTexture(const std::string& path, bool flip = true)
     {
         int width, height;
-        unsigned char* data = GetTextureData(path, width, height, flipXY);
+        auto imageData = Utils::Texture::GetTextureData(path, width, height, flip);
         GLuint texture = 0; // OpenGL Texture Object
-        if (data != nullptr)
+        if (imageData)
         {
             // Create texture
             glCreateTextures(GL_TEXTURE_2D, 1, &texture);
@@ -194,22 +192,10 @@ private:
             glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
 
             // Upload texture data
-            glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-            // Free image data
-            stbi_image_free(data);
+            glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, imageData.get());
         }
 
         return texture;
-    }
-
-    unsigned char* GetTextureData(const std::string& path, int& width, int& height, bool flip)
-    {
-        int bytesPerPixel;
-        const int desiredChannels = 4;
-        stbi_set_flip_vertically_on_load(flip);
-        unsigned char *data = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, desiredChannels);
-        return data;
     }
 
     Dazzle::RenderSystem::GL::ProgramObject mProgram;
