@@ -18,6 +18,11 @@ namespace Utils
                                             const std::vector<float>& normals,
                                             const std::vector<float>& textureCoords);
     }
+
+    namespace Texture
+    {
+        std::unique_ptr<unsigned char, void(*)(unsigned char*)> GetTextureData(const std::string& filePath, int& width, int& height, bool flip);
+    }
 }
 
 #endif // _UTILITIES_HPP_

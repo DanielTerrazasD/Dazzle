@@ -3,6 +3,8 @@
 #include "glm/glm.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include "Utils.hpp"
 
@@ -64,6 +66,7 @@ void Utils::Geom::GetMeshDataFromObj(   std::string filePath,
 
 std::vector<float> Utils::Geom::GenerateNormals()
 {
+    /// TODO:
     return std::vector<float>();
 }
 
@@ -187,4 +190,26 @@ std::vector<float> Utils::Geom::GenerateTangents(   const std::vector<float>& ve
     }
 
     return tangents;
+}
+
+std::unique_ptr<unsigned char, void(*)(unsigned char*)> Utils::Texture::GetTextureData(const std::string& filePath, int& width, int& height, bool flip)
+{
+    int channels; // Actual number of channels. 1 = Grayscale, 2 = Grayscale + Alpha, 3 = RGB, 4 = RGBA
+    const int desiredChannels = 4; // Convert to RGBA
+    stbi_set_flip_vertically_on_load(flip);
+
+    std::unique_ptr<unsigned char, void(*)(unsigned char*)> image
+    (
+        stbi_load(filePath.c_str(), &width, &height, &channels, desiredChannels),
+        // Custom deleter to free the image data
+        [](unsigned char* data)
+        {
+            if (data)
+            {
+                stbi_image_free(data);
+            }
+        }
+    );
+
+    return image;
 }
