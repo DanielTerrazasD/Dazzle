@@ -5,8 +5,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "imgui.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include "RenderSystem.hpp"
 #include "FileManager.hpp"
@@ -16,6 +14,7 @@
 #include "Camera.hpp"
 #include "Scene.hpp"
 #include "UserInterface.hpp"
+#include "Utils.hpp"
 
 class SceneTexture : public IScene
 {
@@ -150,9 +149,9 @@ private:
     GLuint CreateTexture(const std::string& path, bool flipXY)
     {
         int width, height;
-        unsigned char* data = GetTextureData(path, width, height, flipXY);
+        auto data = Utils::Texture::GetTextureData(path, width, height, flipXY);
         GLuint texture = 0; // OpenGL Texture Object
-        if (data != nullptr)
+        if (data)
         {
             // Create texture
             glCreateTextures(GL_TEXTURE_2D, 1, &texture);
@@ -165,22 +164,10 @@ private:
             glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             // Upload texture data
-            glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-            // Free image data
-            stbi_image_free(data);
+            glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
         }
 
         return texture;
-    }
-
-    unsigned char* GetTextureData(const std::string& path, int& width, int& height, bool flip)
-    {
-        int bytesPerPixel;
-        const int desiredChannels = 4;
-        stbi_set_flip_vertically_on_load(flip);
-        unsigned char *data = stbi_load(path.c_str(), &width, &height, &bytesPerPixel, desiredChannels);
-        return data;
     }
 
 
