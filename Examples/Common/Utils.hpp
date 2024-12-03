@@ -22,6 +22,7 @@ namespace Utils
     namespace Texture
     {
         std::unique_ptr<unsigned char, void(*)(unsigned char*)> GetTextureData(const std::string& filePath, int& width, int& height, bool flip);
+        std::unique_ptr<float, void(*)(float*)> GetHDRTextureData(const std::string& filePath, int& width, int& height, bool flip);
     }
 }
 

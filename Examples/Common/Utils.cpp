@@ -213,3 +213,23 @@ std::unique_ptr<unsigned char, void(*)(unsigned char*)> Utils::Texture::GetTextu
 
     return image;
 }
+
+std::unique_ptr<float, void(*)(float*)> Utils::Texture::GetHDRTextureData(const std::string& filePath, int& width, int& height, bool flip)
+{
+    int channels;
+    const int desiredChannels = 3; // 3 = RGB, 4 = RGBE (E = Exponent)
+
+    std::unique_ptr<float, void(*)(float*)> image
+    (
+        stbi_loadf(filePath.c_str(), &width, &height, &channels, desiredChannels),
+        [](float* data)
+        {
+            if (data)
+            {
+                stbi_image_free(data);
+            }
+        }
+    );
+
+    return image;
+}
