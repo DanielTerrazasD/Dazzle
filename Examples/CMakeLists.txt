@@ -22,6 +22,7 @@ add_subdirectory(NormalMapping)
 add_subdirectory(ParallaxMapping)
 add_subdirectory(CubemapReflection)
 add_subdirectory(CubemapRefraction)
+add_subdirectory(ProjectiveTextureMapping)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
