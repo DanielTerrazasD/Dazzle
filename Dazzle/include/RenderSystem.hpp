@@ -15,7 +15,7 @@ namespace Dazzle
     {
         namespace GL
         {
-            void SetupDebugMessageCallback();
+            void SetupDebugMessageCallback(const std::vector<GLuint>& filterOutIDs = {131185});
             void DebugMessageCallback(  GLenum source,
                                         GLenum type,
                                         GLuint id,

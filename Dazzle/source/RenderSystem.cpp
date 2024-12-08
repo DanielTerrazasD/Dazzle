@@ -4,7 +4,7 @@
 #include "RenderSystem.hpp"
 #include "Utilities.hpp"
 
-void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
+void Dazzle::RenderSystem::GL::SetupDebugMessageCallback(const std::vector<GLuint>& filterOutIDs)
 {
     GLint contextFlags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
@@ -35,8 +35,7 @@ void Dazzle::RenderSystem::GL::SetupDebugMessageCallback()
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
         // Filter out specific id:
-        GLuint filterOutId = 131185;
-        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 1, &filterOutId, GL_FALSE);
+        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, (GLsizei)filterOutIDs.size(), filterOutIDs.data(), GL_FALSE);
     }
 }
 
