@@ -17,3 +17,6 @@
 [submodule "vendor/tinyobjloader"]
 	path = vendor/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader
+[submodule "vendor/cgltf"]
+	path = vendor/cgltf
+	url = https://github.com/jkuhlmann/cgltf
