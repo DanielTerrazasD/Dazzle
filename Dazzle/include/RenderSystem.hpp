@@ -98,6 +98,7 @@ namespace Dazzle
                 GLint GetCompilationStatus() const;
                 std::string GetInfoLog() const;
                 GLuint GetHandle() const;
+                std::string GetShaderTypeAsString();
                 bool IsValid() const;
             private:
                 void ValidateType(const GLenum& type);

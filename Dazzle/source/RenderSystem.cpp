@@ -87,7 +87,7 @@ void Dazzle::RenderSystem::GL::DebugMessageCallback(GLenum source,
     }
 
     #ifdef _DEBUG
-    std::cerr   << "OpenGL Debug Message Callback:    " << message << std::endl;
+    std::cerr   << "Message:    " << message << std::endl;
     /// TODO: Print the Callstack
     #endif // DEBUG
 }
@@ -318,6 +318,20 @@ GLuint Dazzle::RenderSystem::GL::ShaderObject::GetHandle() const
     return mHandle;
 }
 
+std::string Dazzle::RenderSystem::GL::ShaderObject::GetShaderTypeAsString()
+{
+    switch (mType)
+    {
+    case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
+    case GL_TESS_CONTROL_SHADER: return "GL_TESS_CONTROL_SHADER";
+    case GL_TESS_EVALUATION_SHADER: return "GL_TESS_EVALUATION_SHADER";
+    case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
+    case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+    case GL_COMPUTE_SHADER: return "GL_COMPUTE_SHADER";
+    }
+    return "GL_INVALID_ENUM";
+}
+
 bool Dazzle::RenderSystem::GL::ShaderObject::IsValid() const
 {
     return mHandle > 0;
@@ -529,7 +543,10 @@ void Dazzle::RenderSystem::GL::ShaderBuilder::Build(ShaderObject& shader, const 
     shader.Initialize();
     shader.Compile();
     if (shader.GetCompilationStatus() != GL_TRUE)
-        std::cerr << shader.GetInfoLog();
+        std::cerr   << "Shader Compilation Error:\n"
+                    << "Shader Handle: " << shader.GetHandle() << '\n'
+                    << "Shader Type: " << shader.GetShaderTypeAsString() << '\n'
+                    << "Log:\n" << shader.GetInfoLog() << std::endl;
 }
 
 void Dazzle::RenderSystem::GL::ProgramBuilder::Build(ProgramObject& program, const std::vector<ShaderObject*>& shaders)
