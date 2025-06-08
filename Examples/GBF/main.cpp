@@ -38,7 +38,6 @@ public:
                     mRenderBufferConfig(), mRenderBuffer(),
                     mIntermediateBufferConfig(), mIntermediateBuffer(),
                     mSigmaSquared(0.0f), mWeights(),
-                    mQuadVAO(nullptr),
                     mWidth(), mHeight() {}
 
     void Initialize(const std::shared_ptr<Camera>& camera) override
@@ -71,43 +70,10 @@ public:
         // -----------------------------------------------------------------------------------------
         // 3D Objects for this scene:
         // Full Screen Quad
-        GLfloat vertices[] =
-        {
-            -1.0f, -1.0f, 0.0f, // Bottom Left
-            1.0f, -1.0f, 0.0f,  // Bottom Right
-            1.0f, 1.0f, 0.0f,   // Top Right
-            -1.0f, 1.0f, 0.0f   // Top Left
-        };
-        GLfloat normals[] =
-        {
-            0.0f, 0.0f, 1.0f,   // Bottom Left
-            0.0f, 0.0f, 1.0f,   // Bottom Right
-            0.0f, 0.0f, 1.0f,   // Top Right
-            0.0f, 0.0f, 1.0f    // Top Left
-        };
-        GLint indices[] =
-        {
-            0, 1, 2,
-            2, 3, 0
-        };
-        mQuadVAO = std::make_unique<Dazzle::RenderSystem::GL::VAO>();
-        mQuadVBO = std::make_unique<Dazzle::RenderSystem::GL::VBO>();
-        mQuadNVBO = std::make_unique<Dazzle::RenderSystem::GL::VBO>();
-        mQuadEBO = std::make_unique<Dazzle::RenderSystem::GL::EBO>();
-
-        glNamedBufferStorage(mQuadVBO->GetHandle(), 12 * sizeof(GLfloat), vertices, 0);
-        glNamedBufferStorage(mQuadNVBO->GetHandle(), 12 * sizeof(GLfloat), normals, 0);
-        glNamedBufferStorage(mQuadEBO->GetHandle(), 6 * sizeof(GLint), indices, 0);
-        glVertexArrayVertexBuffer(mQuadVAO->GetHandle(), 0, mQuadVBO->GetHandle(), 0, 3 * sizeof(GLfloat));
-        glVertexArrayAttribFormat(mQuadVAO->GetHandle(), 0, 3, GL_FLOAT, GL_FALSE, 0);
-        glVertexArrayAttribBinding(mQuadVAO->GetHandle(), 0, 0);
-        glEnableVertexArrayAttrib(mQuadVAO->GetHandle(), 0);
-        glVertexArrayVertexBuffer(mQuadVAO->GetHandle(), 1, mQuadNVBO->GetHandle(), 0, 3 * sizeof(float));
-        glVertexArrayAttribFormat(mQuadVAO->GetHandle(), 1, 3, GL_FLOAT, GL_FALSE, 0);
-        glVertexArrayAttribBinding(mQuadVAO->GetHandle(), 1, 1);
-        glEnableVertexArrayAttrib(mQuadVAO->GetHandle(), 1);
-        glVertexArrayElementBuffer(mQuadVAO->GetHandle(), mQuadEBO->GetHandle());
-        glBindVertexArray(mQuadVAO->GetHandle());
+        mQuad = std::make_unique<Dazzle::Plane>(2.0f, 2.0f, 1, 1);
+        mQuad->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+        mQuad->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+        mQuad->InitializeBuffers();
 
         mPlane = std::make_unique<Dazzle::Plane>();
         mPlane->SetPosition(glm::vec3(0.0f, -3.0f, -5.0f));
@@ -156,6 +122,8 @@ public:
     }
 
 private:
+
+    // Pass #1: Render Scene to Texture
     void Pass1()
     {
         // Shader Pass #1
@@ -192,6 +160,8 @@ private:
         mTorus->Draw();
     }
 
+    // Pass #2: This pass applies the vertical Gaussian Blurring effect to the texture from Pass #1.
+    // The effect is applied in two steps: vertical (pass #2) and horizontal (pass #3) blurring.
     void Pass2()
     {
         // Shader Pass #2
@@ -205,7 +175,7 @@ private:
         glBindTextureUnit(0, mRenderBufferConfig.mTexture);
 
         // Update Matrices
-        auto model = glm::mat4(1.0f);
+        auto model = mQuad->GetTransform();
         auto view = glm::mat4(1.0f);
         auto projection = glm::mat4(1.0f);
         auto modelView = view * model;
@@ -216,10 +186,11 @@ private:
         glUniformMatrix3fv(mShader.mLocations.at("Normal"), 1, GL_FALSE, glm::value_ptr(normal));
 
         // Draw
-        glBindVertexArray(mQuadVAO->GetHandle());
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        mQuad->Draw();
     }
 
+    // Pass #3: This pass applies the horizontal Gaussian Blurring effect to the texture from Pass #2.
+    // And finally, it renders the scene using the blurred texture.
     void Pass3()
     {
         // Shader Pass #3
@@ -232,7 +203,7 @@ private:
         glBindTextureUnit(0, mIntermediateBufferConfig.mTexture);
 
         // Update Matrices
-        auto model = glm::mat4(1.0f);
+        auto model = mQuad->GetTransform();
         auto view = glm::mat4(1.0f);
         auto projection = glm::mat4(1.0f);
         auto modelView = view * model;
@@ -243,8 +214,7 @@ private:
         glUniformMatrix3fv(mShader.mLocations.at("Normal"), 1, GL_FALSE, glm::value_ptr(normal));
 
         // Draw
-        glBindVertexArray(mQuadVAO->GetHandle());
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        mQuad->Draw();
     }
 
     void UpdateMatrices(const ShaderProgram& shader, glm::mat4 model)
@@ -409,16 +379,13 @@ private:
         return (float) (coeff * exp(expon));
     }
 
-    std::unique_ptr<Dazzle::RenderSystem::GL::VAO> mQuadVAO;
-    std::unique_ptr<Dazzle::RenderSystem::GL::VBO> mQuadVBO;
-    std::unique_ptr<Dazzle::RenderSystem::GL::VBO> mQuadNVBO;
-    std::unique_ptr<Dazzle::RenderSystem::GL::EBO> mQuadEBO;
     FramebufferConfig mRenderBufferConfig;
     FramebufferConfig mIntermediateBufferConfig;
     GLuint mRenderBuffer;
     GLuint mIntermediateBuffer;
     ShaderProgram mShader;
 
+    std::unique_ptr<Dazzle::Plane> mQuad;
     std::unique_ptr<Dazzle::Plane> mPlane;
     std::unique_ptr<Dazzle::Sphere> mSphere;
     std::unique_ptr<Dazzle::Torus> mTorus;
