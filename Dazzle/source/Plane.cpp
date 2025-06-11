@@ -30,7 +30,7 @@ Dazzle::Plane::Plane(float width, float depth, unsigned int widthSegments, unsig
     // Generate Vertices, Normals and Texture Coordinates
     for (unsigned int i = 0; i <= depthSegments; ++i)
     {
-        float z = -halfDepth + i * depthDiff;
+        float z = halfDepth - i * depthDiff;
         for (unsigned int j = 0; j <= widthSegments; ++j)
         {
             float x = -halfWidth + j * widthDiff;
