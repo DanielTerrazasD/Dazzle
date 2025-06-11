@@ -26,6 +26,7 @@ add_subdirectory(ProjectiveTextureMapping)
 add_subdirectory(RenderToTexture)
 add_subdirectory(EDF)
 add_subdirectory(GBF)
+add_subdirectory(ToneMapping)
 add_subdirectory(Gamma)
 
 # Create a group of Examples
