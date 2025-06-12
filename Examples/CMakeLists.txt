@@ -27,6 +27,7 @@ add_subdirectory(RenderToTexture)
 add_subdirectory(EDF)
 add_subdirectory(GBF)
 add_subdirectory(ToneMapping)
+add_subdirectory(Bloom)
 add_subdirectory(Gamma)
 
 # Create a group of Examples
