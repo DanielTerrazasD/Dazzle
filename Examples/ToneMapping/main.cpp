@@ -177,9 +177,7 @@ private:
         std::vector<float> textureData(size * 3); // RGB data for each pixel
         // Bind the HDR texture and read its pixel data
         // Note: This assumes the texture is in RGB format with floating-point values
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, mHDRConfig.mTexture);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, textureData.data());
+        glGetTextureImage(mHDRConfig.mTexture, 0, GL_RGB, GL_FLOAT, textureData.size() * sizeof(float), textureData.data());
         float sum = 0.0f;
         for (int i = 0; i < size * 3; i += 3)
         {
