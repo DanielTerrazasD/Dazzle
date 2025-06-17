@@ -23,7 +23,7 @@
 #define TEXTURE_WIDTH (int)512
 #define TEXTURE_HEIGHT (int)512
 
-class SceneToneMapping : public IScene
+class SceneBloom : public IScene
 {
 public:
     struct ShaderProgram
@@ -40,7 +40,7 @@ public:
         float mShininess;
     };
 
-    SceneToneMapping() :  mMVP(), mModelView(), mNormalMtx(),
+    SceneBloom() :  mMVP(), mModelView(), mNormalMtx(),
                     mWidth(), mHeight() {}
 
     void Initialize(const std::shared_ptr<Camera>& camera) override
@@ -567,11 +567,11 @@ private:
     glm::mat3 mNormalMtx;
 };
 
-class UIToneMapping : public IUserInterface
+class UIBloom : public IUserInterface
 {
 public:
 
-    void SetScene(IScene* scene) override { mScene = static_cast<SceneToneMapping*>(scene); }
+    void SetScene(IScene* scene) override { mScene = static_cast<SceneBloom*>(scene); }
     void SetCamera(Camera* camera) override { mCamera = camera; }
 
     void Update() override
@@ -592,7 +592,7 @@ public:
         ImGui::Text("Press SHIFT to toggle cursor capture mode.");
 
         // Shader
-        ImGui::SeparatorText("Tone Mapping");
+        ImGui::SeparatorText("Bloom");
 
         ImGui::NewLine();
         ImGui::Text("Exposure:"); ImGui::SameLine(); ImGui::DragFloat("##Exposure", &mExposure, 0.01f, 0.01f, 2.0f, "%.2f");
@@ -625,7 +625,7 @@ private:
         mLuminanceThreshold = 1.7f;
     }
 
-    SceneToneMapping* mScene = nullptr;
+    SceneBloom* mScene = nullptr;
     Camera* mCamera = nullptr;
 
     float mExposure = 0.35f;
@@ -638,12 +638,12 @@ int main(int argc, char const *argv[])
     AppConfig config;
     config.width = WINDOW_WIDTH; // Window Width
     config.height = WINDOW_HEIGHT; // Window Height
-    config.title = "Tone Mapping";    // Window Title
+    config.title = "Bloom";    // Window Title
 
-    auto sceneToneMapping = std::make_unique<SceneToneMapping>();
-    auto uiToneMapping = std::make_unique<UIToneMapping>();
+    auto sceneBloom = std::make_unique<SceneBloom>();
+    auto uiBloom = std::make_unique<UIBloom>();
 
-    App app(config, std::move(sceneToneMapping), std::move(uiToneMapping));
+    App app(config, std::move(sceneBloom), std::move(uiBloom));
     app.Run();
 
     return 0;
