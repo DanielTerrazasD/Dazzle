@@ -31,6 +31,7 @@ add_subdirectory(Bloom)
 add_subdirectory(Gamma)
 add_subdirectory(SSAO)
 add_subdirectory(OIT)
+add_subdirectory(glTF)
 
 # Create a group of Examples
 source_group(   TREE ${CMAKE_SOURCE_DIR}/Examples
