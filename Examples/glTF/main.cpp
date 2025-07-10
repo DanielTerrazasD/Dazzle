@@ -89,7 +89,7 @@ public:
     void CursorCallback(double xPosition, double yPosition) override {}
     void FramebufferResizeCallback(int width, int height) override { glViewport(0, 0, width, height); }
 
-    void SetLightPosition(const std::array<float, 4> pos) { mLightPosition = glm::vec4(pos[0], pos[1], pos[2], pos[3]); }
+    void SetLightPosition(const std::array<float, 3> pos) { mLightPosition = glm::vec3(pos[0], pos[1], pos[2]); }
 
 private:
 
@@ -121,12 +121,14 @@ private:
 
         // Get Uniforms
         GLuint handle = mShader.mProgram.GetHandle();
-        mShader.mLocations["m4_ModelViewProjection"] = glGetUniformLocation(handle, "m4_ModelViewProjection");
-        mShader.mLocations["m4_ModelView"] = glGetUniformLocation(handle, "m4_ModelView");
-        mShader.mLocations["m3_Normal"] = glGetUniformLocation(handle, "m3_Normal");
+        mShader.mLocations["uModelMatrix"] = glGetUniformLocation(handle, "uModelMatrix");
+        mShader.mLocations["uViewMatrix"] = glGetUniformLocation(handle, "uViewMatrix");
+        mShader.mLocations["uProjectionMatrix"] = glGetUniformLocation(handle, "uProjectionMatrix");
+        mShader.mLocations["uNormalMatrix"] = glGetUniformLocation(handle, "uNormalMatrix");
 
-        mShader.mLocations["lightPosition"] = glGetUniformLocation(handle, "lightPosition");
-        mShader.mLocations["lightColor"] = glGetUniformLocation(handle, "lightColor");
+        mShader.mLocations["uCameraPosition"] = glGetUniformLocation(handle, "uCameraPosition");
+        mShader.mLocations["uLightPosition"] = glGetUniformLocation(handle, "uLightPosition");
+        mShader.mLocations["uLightColor"] = glGetUniformLocation(handle, "uLightColor");
 
         glUseProgram(mShader.mProgram.GetHandle());
         glEnable(GL_DEPTH_TEST);
@@ -136,9 +138,6 @@ private:
 
     void InitializeUniforms()
     {
-        // Lights
-        glUniform3fv(mShader.mLocations.at("lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
-        // glUniform3fv(mShader.mLocations.at("lightPosition"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
     }
 
     GLuint InitializeBuffers(   const std::vector<float>& positions,
@@ -229,29 +228,31 @@ private:
     {
         auto view = mCamera->GetTransform();
         auto projection = mCamera->GetProjection();
+        auto normal = glm::transpose(glm::inverse(glm::mat3(model)));
 
-        auto mv = view * model;
-        auto mvp = projection * mv;
-        auto normal = glm::transpose(glm::inverse(glm::mat3(mv)));
-
-        auto location = shader.mLocations.find("m4_ModelViewProjection");
+        auto location = shader.mLocations.find("uModelMatrix");
         if (location != shader.mLocations.end())
-           glUniformMatrix4fv(location->second, 1, GL_FALSE, glm::value_ptr(mvp));
+           glUniformMatrix4fv(location->second, 1, GL_FALSE, glm::value_ptr(model));
 
-        location = shader.mLocations.find("m4_ModelView");
+        location = shader.mLocations.find("uViewMatrix");
         if (location != shader.mLocations.end())
-           glUniformMatrix4fv(location->second, 1, GL_FALSE, glm::value_ptr(mv));
+           glUniformMatrix4fv(location->second, 1, GL_FALSE, glm::value_ptr(view));
 
-        location = shader.mLocations.find("m3_Normal");
+        location = shader.mLocations.find("uProjectionMatrix");
+        if (location != shader.mLocations.end())
+           glUniformMatrix4fv(location->second, 1, GL_FALSE, glm::value_ptr(projection));
+
+        location = shader.mLocations.find("uNormalMatrix");
         if (location != shader.mLocations.end())
            glUniformMatrix3fv(location->second, 1, GL_FALSE, glm::value_ptr(normal));
     }
 
     void UpdateUniforms()
     {
-        auto cameraTransform = mCamera->GetTransform();
-        mLightPosition = cameraTransform * mLightPosition;
-        glUniform4fv(mShader.mLocations.at("lightPosition"), 1, glm::value_ptr(mLightPosition));
+        glm::vec3 cameraPosition = mCamera->GetPosition();
+        glUniform3fv(mShader.mLocations.at("uCameraPosition"), 1, glm::value_ptr(cameraPosition));
+        glUniform3fv(mShader.mLocations.at("uLightPosition"), 1, glm::value_ptr(mLightPosition));
+        glUniform3fv(mShader.mLocations.at("uLightColor"), 1, glm::value_ptr(mLightColor));
     }
 
     GLuint CreateTexture(const std::string& path, bool flip = true)
@@ -266,7 +267,7 @@ private:
 
             // Set texture parameters
             glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
             // Explicitly state the base and max levels
             glTextureParameteri(texture, GL_TEXTURE_BASE_LEVEL, 0);
@@ -284,7 +285,8 @@ private:
 
     glTF mWoodenTable;
     ShaderProgram mShader;
-    glm::vec4 mLightPosition = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    glm::vec3 mLightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 mLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
     std::shared_ptr<Camera> mCamera;
     glm::mat4 mMVP;
@@ -350,7 +352,7 @@ private:
     SceneglTF* mScene = nullptr;
     Camera* mCamera = nullptr;
 
-    std::array<float, 4> mLightPosition = { 1.0f, 1.0f, 1.0f, 1.0f };
+    std::array<float, 3> mLightPosition = { 1.0f, 1.0f, 1.0f };
 };
 
 int main(int argc, char const *argv[])
