@@ -14,6 +14,8 @@ set(SOURCES
     CursorInputMode.hpp
     Framebuffer.cpp
     Framebuffer.hpp
+    glTF.cpp
+    glTF.hpp
     Keyboard.cpp
     Keyboard.hpp
     pch.hpp
@@ -45,4 +47,5 @@ target_include_directories(${TARGET}
         ${CMAKE_SOURCE_DIR}/Vendor/glm
         ${CMAKE_SOURCE_DIR}/Vendor/tinyobjloader
         ${CMAKE_SOURCE_DIR}/Vendor/stb
+        ${CMAKE_SOURCE_DIR}/Vendor/cgltf
 )
