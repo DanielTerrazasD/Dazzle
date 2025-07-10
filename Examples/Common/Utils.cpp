@@ -91,7 +91,7 @@ std::vector<float> Utils::Geom::GenerateTangents(   const std::vector<float>& ve
     std::vector<float> bitangents(verticesCount * 3);
 
     // Iterate through triangles
-    for (size_t i = 0; i < verticesCount; i += 3)
+    for (size_t i = 0; i < verticesCount - 2; i += 3)
     {
         float x, y, z;
         float u, v;
